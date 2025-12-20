@@ -368,7 +368,7 @@
 <body class="h-[100dvh] w-screen flex flex-col items-center justify-center bg-gray-950">
     <div id="loader-screen" class="loader-screen">
         <div class="spinner"></div>
-        <p class="text-gray-400 mt-4 text-sm font-medium" data-i18n="connecting">Connecting to Supabase...</p>
+        <p class="text-gray-400 mt-4 text-sm font-medium" data-i18n="connecting">Connecting to supabase...</p>
     </div>
 
     <!-- Room Selection Screen -->
@@ -933,7 +933,7 @@
         };
 
         // --- SUPABASE GLOBALS ---
-        let supabase;
+        let supabaseClient;
         let localUserId = null;
         let localPlayerName = "Guest";
         let sound;
@@ -1951,7 +1951,7 @@
                 const SUPABASE_URL = 'https://ptpvoqcksuwkdlxnekad.supabase.co';
                 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB0cHZvcWNrc3V3a2RseG5la2FkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTU0MjAsImV4cCI6MjA4MDMzMTQyMH0.ArID4owrMjOjDMc4b1ePDPZJ7Pajy8i9z7CA9hZZGHg';
 
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
                 let storedId = localStorage.getItem("poker_user_id");
                 if (!storedId) {
@@ -1980,7 +1980,7 @@
                 }
 
                 try {
-                    const { data: rooms, error } = await supabase
+                    const { data: rooms, error } = await supabaseClient
                         .from('rooms')
                         .select('*')
                         .order('last_active', { ascending: false })
@@ -2005,7 +2005,7 @@
 
                         if (isDead) {
                             // 后台静默清理，不阻塞
-                            supabase.from('rooms').delete().eq('id', room.id).then(() => { });
+                            supabaseClient.from('rooms').delete().eq('id', room.id).then(() => { });
                         } else {
                             validRooms.push(room);
                         }
@@ -2211,7 +2211,7 @@
 
                 try {
                     // Check existence and liveness via Supabase
-                    const { data: existing, error } = await supabase
+                    const { data: existing, error } = await supabaseClient
                         .from('rooms')
                         .select('*')
                         .eq('id', roomId)
@@ -2221,7 +2221,7 @@
                         const lastActiveTime = new Date(existing.last_active).getTime();
                         if (Date.now() - lastActiveTime > 30000) {
                             // Dead room, cleanup
-                            await supabase.from('rooms').delete().eq('id', roomId);
+                            await supabaseClient.from('rooms').delete().eq('id', roomId);
                         } else {
                             document.getElementById("room-error").innerText = t("error_game_started");
                             this.disableRoomButtons(false);
@@ -2265,7 +2265,7 @@
                         nextPhaseTimer: 0,
                     };
 
-                    const { error: insertError } = await supabase
+                    const { error: insertError } = await supabaseClient
                         .from('rooms')
                         .insert({ id: roomId, game_state: initialState }); // last_active defaults to now()
 
@@ -2286,7 +2286,7 @@
                 this.disableRoomButtons(true);
 
                 try {
-                    const { data: roomRow, error } = await supabase
+                    const { data: roomRow, error } = await supabaseClient
                         .from('rooms')
                         .select('*')
                         .eq('id', roomId)
@@ -2297,7 +2297,7 @@
                     // 检查死房间
                     const lastActiveTime = new Date(roomRow.last_active).getTime();
                     if (Date.now() - lastActiveTime > 60000) { // 60秒无心跳视为死房间
-                        await supabase.from('rooms').delete().eq('id', roomId);
+                        await supabaseClient.from('rooms').delete().eq('id', roomId);
                         throw new Error("ROOM_IS_DEAD");
                     }
 
@@ -2349,7 +2349,7 @@
                         }
                     }
 
-                    const { error: updateError } = await supabase
+                    const { error: updateError } = await supabaseClient
                         .from('rooms')
                         .update({ game_state: state })
                         .eq('id', roomId);
@@ -2377,7 +2377,7 @@
             async leaveRoom() {
                 this.stopHeartbeat();
                 if (this.realtimeChannel) {
-                    supabase.removeChannel(this.realtimeChannel);
+                    supabaseClient.removeChannel(this.realtimeChannel);
                     this.realtimeChannel = null;
                 }
 
@@ -2386,7 +2386,7 @@
 
                 if (roomId && userId) {
                     try {
-                        const { data: roomRow } = await supabase.from('rooms').select('*').eq('id', roomId).maybeSingle();
+                        const { data: roomRow } = await supabaseClient.from('rooms').select('*').eq('id', roomId).maybeSingle();
                         if (roomRow) {
                             let state = roomRow.game_state;
 
@@ -2399,7 +2399,7 @@
 
                                 // 主机转移等原逻辑...
                                 if (state.playerOrder.length === 0) {
-                                    await supabase.from('rooms').delete().eq('id', roomId);
+                                    await supabaseClient.from('rooms').delete().eq('id', roomId);
                                 } else {
                                     if (state.status === 'playing' && state.playerOrder.length < 2) {
                                         // 重置游戏逻辑 (保持原样)
@@ -2428,14 +2428,14 @@
                                         state.hostId = state.playerOrder[0];
                                         state.logs.push(createLog("log_host_change", { name: state.players[state.hostId].name }));
                                     }
-                                    await supabase.from('rooms').update({ game_state: state }).eq('id', roomId);
+                                    await supabaseClient.from('rooms').update({ game_state: state }).eq('id', roomId);
                                 }
                             }
                             // 检查是否是旁观者
                             else if (state.spectators && state.spectators.some(s => s.uid === userId)) {
                                 // 【改动点】使用 filter 过滤对象
                                 state.spectators = state.spectators.filter(s => s.uid !== userId);
-                                await supabase.from('rooms').update({ game_state: state }).eq('id', roomId);
+                                await supabaseClient.from('rooms').update({ game_state: state }).eq('id', roomId);
                             }
                         }
                     } catch (e) { console.error(e); }
@@ -2460,7 +2460,7 @@
                     if (state && state.hostId === this.localUserId) {
                         // Heartbeat: Only update the timestamp column to avoid heavy JSON write conflicts
                         try {
-                            await supabase
+                            await supabaseClient
                                 .from('rooms')
                                 .update({ last_active: new Date().toISOString() })
                                 .eq('id', roomId);
@@ -2486,7 +2486,7 @@
                 this.startHeartbeat(roomId);
 
                 // Initial Fetch
-                supabase.from('rooms').select('*').eq('id', roomId).maybeSingle()
+                supabaseClient.from('rooms').select('*').eq('id', roomId).maybeSingle()
                     .then(({ data }) => {
                         if (data) {
                             this.gameUI.renderGameState(data.game_state, this.localUserId);
@@ -2495,7 +2495,7 @@
                     });
 
                 // Supabase Realtime Subscription
-                this.realtimeChannel = supabase
+                this.realtimeChannel = supabaseClient
                     .channel(`room_${roomId}`)
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms', filter: `id=eq.${roomId}` }, (payload) => {
                         if (payload.eventType === 'DELETE') {
@@ -2525,13 +2525,13 @@
                         this.nextPhaseTimeout = setTimeout(async () => {
                             this.nextPhaseTimeout = null;
                             // Re-fetch to get latest before update
-                            const { data } = await supabase.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
+                            const { data } = await supabaseClient.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
                             if (data) {
                                 let cur = data.game_state;
                                 if (cur.nextPhaseTimer > 0) {
                                     cur.nextPhaseTimer = 0;
                                     const next = runAutoShowdown(cur);
-                                    await supabase.from('rooms').update({ game_state: next }).eq('id', this.currentRoomId);
+                                    await supabaseClient.from('rooms').update({ game_state: next }).eq('id', this.currentRoomId);
                                 }
                             }
                         }, state.nextPhaseTimer);
@@ -2545,12 +2545,12 @@
                     if (state.nextRoundTimer > 0 && !this.nextRoundTimeout) {
                         this.nextRoundTimeout = setTimeout(async () => {
                             this.nextRoundTimeout = null;
-                            const { data } = await supabase.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
+                            const { data } = await supabaseClient.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
                             if (data) {
                                 const cur = data.game_state;
                                 if (cur.phase === "showdown") {
                                     const next = startNewRound(cur);
-                                    await supabase.from('rooms').update({ game_state: next }).eq('id', this.currentRoomId);
+                                    await supabaseClient.from('rooms').update({ game_state: next }).eq('id', this.currentRoomId);
                                 }
                             }
                         }, state.nextRoundTimer);
@@ -2601,7 +2601,7 @@
 
                     currentState.status = "playing";
                     const nextState = startNewRound(currentState);
-                    await supabase.from('rooms').update({ game_state: nextState }).eq('id', this.currentRoomId);
+                    await supabaseClient.from('rooms').update({ game_state: nextState }).eq('id', this.currentRoomId);
 
                 } catch (error) {
                     btn.disabled = false;
@@ -2622,7 +2622,7 @@
 
                 try {
                     // Read latest state to ensure valid move
-                    const { data } = await supabase.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
+                    const { data } = await supabaseClient.from('rooms').select('game_state').eq('id', this.currentRoomId).maybeSingle();
                     if (!data) throw new Error("Room missing");
 
                     const currentState = data.game_state;
@@ -2633,7 +2633,7 @@
                     if (action === "raise") totalAmount = player.currentBet + actionAmount;
 
                     const nextState = processAction(currentState, this.localUserId, action, totalAmount);
-                    await supabase.from('rooms').update({ game_state: nextState }).eq('id', this.currentRoomId);
+                    await supabaseClient.from('rooms').update({ game_state: nextState }).eq('id', this.currentRoomId);
 
                 } catch (error) {
                     console.error(error);
