@@ -1229,7 +1229,7 @@
                                 let winnings = winPer;
                                 if (remainder > 0) { winnings++; remainder--; }
                                 newState.players[w.uid].chips += winnings;
-                                newState.highlightWinner = w.uid;
+                                newState.highlightWinners = (newState.highlightWinners || []).concat(w.uid);
                                 if (w.bestHand.bestCards) w.bestHand.bestCards.forEach(c => newState.highlightCards.add(c.id));
                                 safetyCounter++;
                                 if (safetyCounter > winners.length) {
@@ -1340,6 +1340,7 @@
             newState.playersActed = [];
             newState.highlightWinner = null;
             newState.highlightCards = [];
+            newState.highlightWinners = [];
             newState.nextRoundTimer = 0;
             newState.nextPhaseTimer = 0;
             newState.lastAllInPlayer = null;
@@ -1778,7 +1779,7 @@
                     const labelEl = document.getElementById(`hand-label-${p.uid}`);
                     if (labelEl) {
                         if (state.phase === 'showdown' && !p.folded && p.bestHand && p.bestHand.name) {
-                            const isWinner = state.highlightWinner === p.uid;
+                            const isWinner = (state.highlightWinners || []).includes(p.uid);
                             const handName = t(p.bestHand.name);
                             const newHtml = isWinner
                                 ? `<span class="winner-hand-label">${handName}</span>`
