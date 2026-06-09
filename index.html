@@ -2913,11 +2913,25 @@
             }
             leaveRoom() {
                 if (this.isHost && this.currentRoomId && this.currentRoomId !== "LOCAL_VS_AI") {
-                    let state = this.gameUI.lastState;
+                    let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                     if (state) {
                         const candidates = Object.values(state.players).filter(p => !p.isAI && p.uid !== this.localUserId);
                         if (candidates.length > 0) {
                             const successor = candidates[0];
+                            const myPlayer = state.players[this.localUserId];
+                            if (myPlayer) {
+                                if (state.status === 'playing') {
+                                    myPlayer.isAI = true;
+                                    if (!myPlayer.name.startsWith("Bot ")) {
+                                        myPlayer.name = "Bot " + myPlayer.name;
+                                    }
+                                    state.logs.push(JSON.stringify({ key: "log_leave_to_ai", args: { name: myPlayer.name.replace("Bot ", "") } }));
+                                } else {
+                                    delete state.players[this.localUserId];
+                                    state.playerOrder = state.playerOrder.filter(id => id !== this.localUserId);
+                                    state.logs.push(JSON.stringify({ key: "log_leave", args: { name: myPlayer.name } }));
+                                }
+                            }
                             this.connections.forEach(conn => {
                                 conn.send({
                                     type: 'HOST_TRANSFER',
