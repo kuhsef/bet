@@ -1485,10 +1485,15 @@
                     const btnRaise = document.getElementById("btn-raise");
                     const valDisplay = document.getElementById("raise-val-display");
                     if (slider && btnRaise && valDisplay && !slider.disabled) {
-                        const raiseVal = parseInt(slider.value);
+                        const raiseVal = parseInt(slider.value); // 后端需要的总额
                         const maxVal = parseInt(slider.max);
-                        valDisplay.innerText = `$${raiseVal}`;
-                        btnRaise.innerText = raiseVal === maxVal ? t("allInBtn") : `${t("raiseBtn")} $${raiseVal}`;
+
+                        // 【新增】读取玩家当前已经下注的金额
+                        const currentBet = parseInt(slider.dataset.currentBet) || 0;
+                        const displayVal = raiseVal - currentBet; // 【新增】计算视觉上需要展示的差额
+
+                        valDisplay.innerText = `$${displayVal}`; // 显示差额
+                        btnRaise.innerText = raiseVal === maxVal ? t("allInBtn") : `${t("raiseBtn")} $${displayVal}`; // 按钮也显示差额
                     }
                 };
             }
@@ -1950,11 +1955,20 @@
                         this.isSliderReset = true;
                     }
                     slider.disabled = false;
+
+                    // 【新增】把当前下注额存入 slider 的 dataset，供滑动事件读取
+                    slider.dataset.currentBet = localPlayer.currentBet;
+
                     const updateBtnText = () => {
                         const raiseVal = parseInt(slider.value);
-                        valDisplay.innerText = `$${raiseVal}`;
+
+                        // 【新增】计算并展示差额
+                        const currentBet = localPlayer.currentBet;
+                        const displayVal = raiseVal - currentBet;
+
+                        valDisplay.innerText = `$${displayVal}`;
                         if (raiseVal === maxPossibleActionRaise) btnRaise.innerText = t("allInBtn");
-                        else btnRaise.innerText = `${t("raiseBtn")} $${raiseVal}`;
+                        else btnRaise.innerText = `${t("raiseBtn")} $${displayVal}`;
                     };
                     updateBtnText();
                 }
