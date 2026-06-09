@@ -364,12 +364,10 @@
 <body class="h-[100dvh] w-screen flex flex-col items-center justify-center bg-gray-950">
     <div id="loader-screen" class="loader-screen">
         <div class="spinner"></div>
-        <p class="text-gray-400 mt-4 text-sm font-medium" data-i18n="connecting">Connecting to supabase...</p>
+        <p class="text-gray-400 mt-4 text-sm font-medium" data-i18n="connecting">Connecting...</p>
     </div>
-    <!-- Room Selection Screen -->
     <div id="room-screen"
         class="hidden absolute z-50 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700 w-11/12 max-w-md">
-        <!-- Language Selector -->
         <div class="absolute top-1.5 right-2">
             <select id="language-selector" onchange="updateLanguage(this.value)"
                 class="bg-gray-800 text-gray-300 text-xs rounded px-2 py-0.5 border border-gray-600 focus:outline-none focus:border-yellow-500">
@@ -430,7 +428,6 @@
             User ID: <span id="user-id-display">...</span>
         </p>
     </div>
-    <!-- Game Area -->
     <div id="game-area" class="hidden w-full h-full relative flex flex-col">
         <div id="top-bar"
             class="h-16 bg-gray-900 w-full flex items-center justify-between px-6 shadow-lg z-10 border-b border-gray-800 relative z-50">
