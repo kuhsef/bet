@@ -2930,7 +2930,7 @@
                 }
                 this.executeLeaveCleanup();
             }
-            executeLeaveCleanup() {
+            executeLeaveCleanup(isTransferring = false) {
                 if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
                 if (this.heartbeatMonitor) clearInterval(this.heartbeatMonitor);
                 if (this.broadcastInterval) clearInterval(this.broadcastInterval);
