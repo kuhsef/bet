@@ -2894,7 +2894,10 @@
                 else if (country === 'CN') targetLang = 'zh';
                 updateLanguage(targetLang);
                 const selectBox = document.getElementById('lang-select');
-                if (selectBox) selectBox.value = targetLang;
+                if (selectBox) {
+                    selectBox.value = targetLang;
+                    selectBox.dispatchEvent(new Event('change'));
+                }
             } catch (e) {
                 updateLanguage('en');
             } finally {
@@ -2902,6 +2905,7 @@
                 if (loadingDiv) loadingDiv.remove();
             }
         }
+        window.addEventListener('DOMContentLoaded', startApp);
         window.addEventListener('DOMContentLoaded', startApp);
         window.addEventListener('DOMContentLoaded', startApp);
     </script>
