@@ -2889,13 +2889,19 @@
                 network.init();
                 const data = await langPromise;
                 const country = data.country_code;
-                if (country === 'JP') updateLanguage('ja');
-                else if (country === 'CN') updateLanguage('zh');
-                else updateLanguage('en');
+                let targetLang = 'en';
+                if (country === 'JP') targetLang = 'ja';
+                else if (country === 'CN') targetLang = 'zh';
+                updateLanguage(targetLang);
+                const selectBox = document.getElementById('lang-select');
+                if (selectBox) {
+                    selectBox.value = targetLang;
+                }
             } catch (e) {
                 updateLanguage('en');
             } finally {
-                document.getElementById('loading').remove();
+                const loadingDiv = document.getElementById('loading');
+                if (loadingDiv) loadingDiv.remove();
             }
         }
         window.addEventListener('DOMContentLoaded', startApp);
