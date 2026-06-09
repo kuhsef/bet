@@ -2403,10 +2403,13 @@
                 if (data.type === 'JOIN_REQ') {
                     let aiPlayers = Object.values(state.players).filter(p => p.isAI);
                     if (state.players[data.uid]) {
-                        if (state.players[data.uid].isAI) {
-                            state.players[data.uid].isAI = false;
-                            state.players[data.uid].name = data.name;
+                        let p = state.players[data.uid];
+                        if (p.isAI) {
+                            p.isAI = false;
+                            p.name = data.name;
                             state.logs.push(createLog("log_join_takeover", { name: data.name }));
+                        } else {
+                            p.name = data.name;
                         }
                     } else {
                         let replacedAI = false;
@@ -2466,6 +2469,8 @@
             }
             handlePlayerLeave(uid) {
                 if (!this.isHost || !uid) return;
+                const hasActiveConnection = this.connections.some(c => c.metadata?.uid === uid);
+                if (hasActiveConnection) return;
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (!state) return;
                 if (state.spectators && state.spectators.some(s => s.uid === uid)) {
@@ -2475,10 +2480,14 @@
                 }
                 if (state.players[uid]) {
                     const playerName = state.players[uid].name;
-                    if (state.status === 'playing' && uid !== state.hostId && !state.players[uid].isAI) {
-                        state.players[uid].isAI = true;
-                        state.players[uid].name = "Bot " + playerName;
-                        state.logs.push(createLog("log_leave_to_ai", { name: playerName }));
+                    if (state.status === 'playing' && uid !== state.hostId) {
+                        if (!state.players[uid].isAI) {
+                            state.players[uid].isAI = true;
+                            if (!playerName.startsWith("Bot ")) {
+                                state.players[uid].name = "Bot " + playerName;
+                            }
+                            state.logs.push(createLog("log_leave_to_ai", { name: playerName }));
+                        }
                     } else {
                         delete state.players[uid];
                         state.playerOrder = state.playerOrder.filter(id => id !== uid);
