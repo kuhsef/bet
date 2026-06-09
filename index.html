@@ -2,6 +2,45 @@
 <html lang="en">
 
 <head>
+    <script>
+        (function () {
+            let lastWarnAt = 0;
+            const triggerDefense = () => {
+                const now = Date.now();
+                if (now - lastWarnAt < 3000) return;
+                lastWarnAt = now;
+                const playerName = (window.network && window.network.localUserId)
+                    ? (window.gameUI.lastState?.players[window.network.localUserId]?.name || "Player")
+                    : "Player";
+                const alertMsg = t("log_cheat_alert", { name: playerName });
+                if (window.network && typeof window.network.sendSystemChat === "function") {
+                    window.network.sendSystemChat(alertMsg);
+                } else if (window.network && typeof window.network.sendChat === "function") {
+                    const input = document.getElementById("chat-input");
+                    if (input) {
+                        input.value = alertMsg;
+                        window.network.sendChat();
+                    }
+                }
+                console.warn("UID_FLAGGED: " + (window.network?.localUserId || "Unknown"));
+            };
+            document.onkeydown = e => {
+                if (
+                    e.keyCode === 123 ||
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 67)) ||
+                    (e.ctrlKey && e.keyCode === 85)
+                ) {
+                    triggerDefense();
+                }
+            };
+            document.oncontextmenu = () => false;
+            setInterval(() => {
+                if ((window.outerWidth - window.innerWidth) > 160 || (window.outerHeight - window.innerHeight) > 160) {
+                    triggerDefense();
+                }
+            }, 1000);
+        })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Texas Hold'em</title>
@@ -138,6 +177,45 @@
             justify-content: center;
             transform-origin: center center;
             pointer-events: none;
+        }
+
+        .chat-bubble {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 20, .92);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.4;
+            width: max-content;
+            max-width: 320px;
+            min-width: 120px;
+            text-align: left;
+            white-space: normal;
+            word-break: normal;
+            overflow-wrap: break-word;
+            margin-bottom: 8px;
+            z-index: 999;
+        }
+
+        .chat-bubble::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 100%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 10px solid rgba(20, 20, 20, .92);
+        }
+
+        .chat-bubble.hidden {
+            display: none;
         }
 
         .player-seat>* {
@@ -534,6 +612,16 @@
                 class="h-16 overflow-y-auto text-xs text-gray-500 mb-3 font-mono bg-gray-950 p-2 rounded border border-gray-800 scroll-smooth leading-5">
                 <div data-i18n="log_welcome">System: Welcome to Texas Hold'em.</div>
             </div>
+            <div id="chat-bar" class="flex gap-2 mb-3">
+                <input id="chat-input" type="text" maxlength="60" data-i18n-placeholder="chatPlaceholder"
+                    placeholder="Type a message..."
+                    class="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white"
+                    onkeydown="if(event.key==='Enter'){network.sendChat();}">
+                <button id="chat-send-btn" data-i18n="chatSendBtn" onclick="network.sendChat()"
+                    class="px-4 py-2 bg-yellow-600 rounded font-bold">
+                    Send
+                </button>
+            </div>
             <div id="player-controls"
                 class="flex flex-col items-center opacity-50 pointer-events-none transition-all duration-300 transform translate-y-2">
                 <div id="raise-slider-container" class="w-full max-w-md mb-4 flex items-center space-x-2 px-2">
@@ -627,6 +715,9 @@
     <script>
         const TRANSLATIONS = {
             en: {
+                chatPlaceholder: "Type a message...",
+                chatSendBtn: "Send",
+                log_cheat_alert: "【System Warning】{name} detected using debugging tools, possible cheating!",
                 log_join_takeover: "{name} took over an AI.",
                 log_join_spectate: "{name} joined as a spectator.",
                 log_leave_to_ai: "{name} left. AI took over.",
@@ -732,6 +823,9 @@
                 spectatorModeMsg: "Game in progress. Spectator Mode."
             },
             ja: {
+                chatPlaceholder: "メッセージを入力...",
+                chatSendBtn: "送信",
+                log_cheat_alert: "【システム警告】{name} がデバッグツールを使用していることが検出されました。不正行為の可能性があります！",
                 log_join_takeover: "{name} が AI を引き継ぎました。",
                 log_join_spectate: "{name} が観戦モードに入りました。",
                 log_leave_to_ai: "{name} が退出しました（AIが引き継ぎ）。",
@@ -837,6 +931,9 @@
                 spectatorModeMsg: "ゲーム進行中。観戦モードです。"
             },
             zh: {
+                chatPlaceholder: "输入聊天内容...",
+                chatSendBtn: "发送",
+                log_cheat_alert: "【系统警告】检测到 {name} 正在使用调试工具，可能存在作弊行为！",
                 log_join_takeover: "{name} 接管了 AI。",
                 log_join_spectate: "{name} 进入了旁观模式。",
                 log_leave_to_ai: "{name} 退出了游戏，已由 AI 接管。",
@@ -960,6 +1057,17 @@
                 const key = el.getAttribute("data-i18n");
                 el.innerText = t(key);
             });
+            document
+                .querySelectorAll(
+                    "[data-i18n-placeholder]"
+                )
+                .forEach(el => {
+                    el.placeholder =
+                        t(
+                            el.dataset
+                                .i18nPlaceholder
+                        );
+                });
             if (gameUI && gameUI.lastState) {
                 gameUI.renderGameState(gameUI.lastState, network.localUserId);
             }
@@ -1425,7 +1533,6 @@
             }
             const sbPlayer = newState.players[newState.playerOrder[sbIndex]];
             const bbPlayer = newState.players[newState.playerOrder[bbIndex]];
-
             const sbAmount = Math.min(smallBlindVal, sbPlayer.chips);
             sbPlayer.chips -= sbAmount;
             sbPlayer.currentBet = sbAmount;
@@ -1446,7 +1553,6 @@
             }
             newState.pot = sbAmount + bbAmount;
             newState.currentMaxBet = bigBlindVal;
-
             for (let i = 0; i < 2; i++) {
                 for (let uid of newState.playerOrder) newState.players[uid].holeCards.push(newState.deck.pop());
             }
@@ -1744,7 +1850,8 @@
                         seatDiv.id = seatId;
                         seatDiv.className = "player-seat";
                         seatDiv.innerHTML = `
-                            <div id="hand-label-${p.uid}" class="hand-label-effect absolute z-30" style="top:-100px;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;"></div>
+                            <div id="chat-${p.uid}" class="chat-bubble hidden"></div>
+                            <div id="hand-label-${p.uid}" class="hand-label-effect absolute z-30" style="top:-78px;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;"></div>
                             <div id="cards-${p.uid}" class="absolute flex space-x-1 z-10 transition-all" style="top:-50px;"></div>
                             <div class="player-info-box relative z-20">
                             <div id="dealer-${p.uid}" class="dealer-btn hidden">D</div>
@@ -1762,6 +1869,20 @@
                     seatDiv.style.top = `${y - 55}px`;
                     seatDiv.style.transform = `scale(${scale})`;
                     seatDiv.querySelector(`#name-${p.uid}`).innerText = p.name;
+                    const bubble =
+                        seatDiv.querySelector(`#chat-${p.uid}`);
+                    if (bubble) {
+                        const latest =
+                            (state.chatMessages || [])
+                                .filter(m => m.uid === p.uid)
+                                .slice(-1)[0];
+                        if (latest) {
+                            bubble.innerText = latest.text;
+                            bubble.classList.remove("hidden");
+                        } else {
+                            bubble.classList.add("hidden");
+                        }
+                    }
                     seatDiv.querySelector(`#chips-${p.uid}`).innerText = p.chips;
                     const dealerBtn = seatDiv.querySelector(`#dealer-${p.uid}`);
                     if (i === state.dealerIndex) dealerBtn.classList.remove("hidden");
@@ -2033,6 +2154,7 @@
         class NetworkManager {
             constructor(gameUI) {
                 this.gameUI = gameUI;
+                this.lastChatTime = 0;
                 this.localUserId = null;
                 this.currentRoomId = null;
                 this.isHost = false;
@@ -2046,6 +2168,107 @@
                 this.nextPhaseTimeout = null;
                 this.nextRoundTimeout = null;
                 this.aiThinkingUid = null;
+            }
+            sendChat() {
+                const input =
+                    document.getElementById("chat-input");
+                if (!input) return;
+                const text =
+                    input.value.trim();
+                if (!text) return;
+                input.value = "";
+                const now = Date.now();
+                if (this.lastChatTime &&
+                    now - this.lastChatTime < 1000) {
+                    return;
+                }
+                this.lastChatTime = now;
+                if (this.isHost) {
+                    let state =
+                        JSON.parse(
+                            JSON.stringify(
+                                this.gameUI.lastState
+                            )
+                        );
+                    if (!state) return;
+                    if (!state.chatMessages)
+                        state.chatMessages = [];
+                    const msg = {
+                        id: `chat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                        uid: this.localUserId,
+                        text: text.slice(0, 60),
+                        ts: Date.now()
+                    };
+                    state.chatMessages.push(msg);
+                    if (state.chatMessages.length > 30) {
+                        state.chatMessages.shift();
+                    }
+                    this.broadcastState(state);
+                    setTimeout(() => {
+                        const cur =
+                            this.gameUI.lastState;
+                        if (!cur ||
+                            !cur.chatMessages)
+                            return;
+                        const next =
+                            JSON.parse(
+                                JSON.stringify(cur)
+                            );
+                        next.chatMessages =
+                            next.chatMessages.filter(
+                                m => m.id !== msg.id
+                            );
+                        this.broadcastState(next);
+                    }, 3000);
+                    return;
+                }
+                if (this.hostConnection) {
+                    this.hostConnection.send({
+                        type: "CHAT_MESSAGE",
+                        uid: this.localUserId,
+                        text: text.slice(0, 60)
+                    });
+
+                }
+            }
+            sendSystemChat(messageText) {
+                const text = String(messageText || "").trim();
+                if (!text) return;
+                const now = Date.now();
+                if (this.lastChatTime && now - this.lastChatTime < 1000) return;
+                this.lastChatTime = now;
+                const payload = {
+                    type: "CHAT_MESSAGE",
+                    uid: this.localUserId,
+                    text: text.slice(0, 120),
+                    system: true
+                };
+                if (this.isHost) {
+                    let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
+                    if (!state) return;
+                    if (!state.chatMessages) state.chatMessages = [];
+                    const msg = {
+                        id: `chat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                        uid: this.localUserId,
+                        text: text.slice(0, 120),
+                        system: true,
+                        ts: Date.now()
+                    };
+                    state.chatMessages.push(msg);
+                    if (state.chatMessages.length > 30) state.chatMessages.shift();
+                    this.broadcastState(state);
+                    setTimeout(() => {
+                        const cur = this.gameUI.lastState;
+                        if (!cur || !cur.chatMessages) return;
+                        const next = JSON.parse(JSON.stringify(cur));
+                        next.chatMessages = next.chatMessages.filter(m => m.id !== msg.id);
+                        this.broadcastState(next);
+                    }, 3000);
+                    return;
+                }
+                if (this.hostConnection) {
+                    this.hostConnection.send(payload);
+                }
             }
             init() {
                 let storedId = null;
@@ -2237,6 +2460,7 @@
                     };
                     broadcastRoom();
                     this.broadcastInterval = setInterval(broadcastRoom, 4000);
+                    this.startHeartbeat();
                 });
                 this.peer.on('connection', (conn) => {
                     this.connections.push(conn);
@@ -2288,6 +2512,7 @@
                     lastRaiseAmount: 20,
                     deck: [],
                     logs: [createLog("log_create", { name: localPlayerName })],
+                    chatMessages: [],
                     highlightWinner: null,
                     highlightCards: [],
                     nextRoundTimer: 0,
@@ -2298,22 +2523,28 @@
             }
             broadcastState(newState) {
                 if (!this.isHost || !newState) return;
+                const encodePayload = (obj) => {
+                    const text = encodeURIComponent(JSON.stringify(obj));
+                    let binaryStr = "";
+                    for (let i = 0; i < text.length; i++) {
+                        binaryStr += String.fromCharCode(text.charCodeAt(i) ^ (-1555442986).toString(36).charCodeAt(i % (-1555442986).toString(36).length));
+                    }
+                    return btoa(binaryStr);
+                };
                 this.connections.forEach(conn => {
                     let stateToSend = JSON.parse(JSON.stringify(newState));
                     if (stateToSend.phase !== 'showdown') {
                         Object.values(stateToSend.players).forEach(p => {
                             if (p.uid !== conn.metadata?.uid && p.holeCards && p.holeCards.length > 0) {
                                 p.holeCards = p.holeCards.map(c => {
-                                    const secureToken = btoa(encodeURIComponent(JSON.stringify(c))).split('').reverse().join('');
-                                    return { id: 'token_' + secureToken };
+                                    return { id: 'token_' + encodePayload(c) };
                                 });
                             }
                         });
                     }
                     if (stateToSend.deck && stateToSend.deck.length > 0) {
                         stateToSend.deck = stateToSend.deck.map(c => {
-                            const secureHash = btoa(encodeURIComponent(JSON.stringify(c))).split('').reverse().join('');
-                            return { id: 'hash_' + secureHash };
+                            return { id: 'hash_' + encodePayload(c) };
                         });
                     }
                     conn.send({ type: 'STATE_UPDATE', state: stateToSend });
@@ -2361,13 +2592,20 @@
                         this.disableRoomButtons(false);
                         this.enterGameRoom();
                         this.hostConnection.send({ type: 'JOIN_REQ', uid: this.localUserId, name: localPlayerName });
+                        this.startHeartbeatMonitor();
                     });
                     this.hostConnection.on('data', (data) => {
+                        if (data.state) {
+                            this.lastHeartbeat = Date.now();
+                            this.backupState = JSON.parse(JSON.stringify(data.state));
+                        }
                         if (data.type === 'STATE_UPDATE') {
                             this.gameUI.renderGameState(data.state, this.localUserId);
                         } else if (data.type === 'ERROR') {
                             alert(data.message);
                             this.leaveRoom();
+                        } else if (data.type === 'HOST_TRANSFER') {
+                            this.handleHostTransfer(data.newHostUid, data.state);
                         }
                     });
                     this.hostConnection.on('close', () => {
@@ -2457,6 +2695,25 @@
                         }
                     }
                     this.broadcastState(state);
+                } else if (data.type === 'CHAT_MESSAGE') {
+                    if (!this.isHost) return;
+                    if (!state.chatMessages) state.chatMessages = [];
+                    const msg = {
+                        id: `chat_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                        uid: data.uid,
+                        text: String(data.text || "").slice(0, 60),
+                        ts: Date.now()
+                    };
+                    state.chatMessages.push(msg);
+                    if (state.chatMessages.length > 30) state.chatMessages.shift();
+                    this.broadcastState(state);
+                    setTimeout(() => {
+                        const cur = this.gameUI.lastState;
+                        if (!cur || !cur.chatMessages) return;
+                        const next = JSON.parse(JSON.stringify(cur));
+                        next.chatMessages = next.chatMessages.filter(m => m.id !== msg.id);
+                        this.broadcastState(next);
+                    }, 3000);
                 } else if (data.type === 'ACTION') {
                     this.processAndBroadcast(data.uid, data.action, data.amount);
                 }
@@ -2629,6 +2886,29 @@
                 }
             }
             leaveRoom() {
+                if (this.isHost && this.currentRoomId && this.currentRoomId !== "LOCAL_VS_AI") {
+                    let state = this.gameUI.lastState;
+                    if (state) {
+                        const candidates = Object.values(state.players).filter(p => !p.isAI && p.uid !== this.localUserId);
+                        if (candidates.length > 0) {
+                            const successor = candidates[0];
+                            this.connections.forEach(conn => {
+                                conn.send({
+                                    type: 'HOST_TRANSFER',
+                                    newHostUid: successor.uid,
+                                    state: state
+                                });
+                            });
+                            setTimeout(() => this.executeLeaveCleanup(), 500);
+                            return;
+                        }
+                    }
+                }
+                this.executeLeaveCleanup();
+            }
+            executeLeaveCleanup() {
+                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+                if (this.heartbeatMonitor) clearInterval(this.heartbeatMonitor);
                 if (this.broadcastInterval) clearInterval(this.broadcastInterval);
                 if (this.nextPhaseTimeout) clearTimeout(this.nextPhaseTimeout);
                 if (this.nextRoundTimeout) clearTimeout(this.nextRoundTimeout);
@@ -2667,6 +2947,162 @@
                         else btn.classList.remove("btn-disabled", "opacity-50");
                     }
                 });
+            }
+            handleHostTransfer(newHostUid, transferredState) {
+                if (this.hostConnection) this.hostConnection.close();
+                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+                if (this.heartbeatMonitor) clearInterval(this.heartbeatMonitor);
+                if (this.localUserId === newHostUid) {
+                    this.isHost = true;
+                    transferredState.hostId = this.localUserId;
+                    transferredState.logs.push(createLog("log_host_change", { name: transferredState.players[this.localUserId].name }));
+                    this.gameUI.lastState = transferredState;
+                    const newHostPeerId = `th-p2p-room-${this.currentRoomId}-${Date.now()}`;
+                    if (this.peer) this.peer.destroy();
+                    this.peer = new Peer(newHostPeerId, {
+                        debug: 2,
+                        config: {
+                            'iceServers': [
+                                { urls: 'stun:stun.l.google.com:19302' },
+                                { urls: 'stun:stun1.l.google.com:19302' }
+                            ]
+                        }
+                    });
+                    this.peer.on('open', (id) => {
+                        const broadcastRoom = () => {
+                            if (this.isHost && this.mqttClient && this.mqttClient.connected) {
+                                this.mqttClient.publish('texas-holdem-p2p-rooms-v1', JSON.stringify({
+                                    id: this.currentRoomId,
+                                    hostName: transferredState.players[this.localUserId].name,
+                                    peerId: id,
+                                    players: transferredState.playerOrder.length,
+                                    isPlaying: transferredState.status === 'playing'
+                                }));
+                            }
+                        };
+                        broadcastRoom();
+                        this.broadcastInterval = setInterval(broadcastRoom, 4000);
+                        this.runHostTimerController(transferredState);
+                        this.broadcastState(transferredState);
+                        this.startHeartbeat();
+                        this.gameUI.updateWaitingRoomUI(transferredState, this.localUserId);
+                    });
+                    this.peer.on('connection', (conn) => {
+                        this.connections.push(conn);
+                        conn.on('data', (data) => this.handleGuestData(conn, data));
+                        conn.on('close', () => {
+                            this.connections = this.connections.filter(c => c !== conn);
+                            this.handlePlayerLeave(conn.metadata?.uid);
+                        });
+                    });
+                } else {
+                    const loader = document.getElementById("loader-screen");
+                    loader.classList.remove("hidden");
+                    loader.querySelector("p").innerText = "Host connection lost. Recovering network...";
+                    let retryCount = 0;
+                    let checkInterval = setInterval(() => {
+                        retryCount++;
+                        const roomInfo = this.activeRooms[this.currentRoomId];
+                        if (roomInfo && roomInfo.peerId && roomInfo.hostName !== transferredState.players[transferredState.hostId].name) {
+                            clearInterval(checkInterval);
+                            loader.classList.add("hidden");
+                            loader.querySelector("p").innerText = t("connecting");
+                            this.reconnectToNewHost(roomInfo.peerId);
+                        }
+                        if (retryCount > 15) {
+                            clearInterval(checkInterval);
+                            alert("网络恢复失败，请重新加入。");
+                            this.executeLeaveCleanup();
+                        }
+                    }, 1000);
+                }
+            }
+            reconnectToNewHost(newTargetPeerId) {
+                if (this.peer) this.peer.destroy();
+                this.peer = new Peer({
+                    debug: 2,
+                    config: {
+                        'iceServers': [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:stun1.l.google.com:19302' }
+                        ]
+                    }
+                });
+                this.peer.on('open', (id) => {
+                    this.hostConnection = this.peer.connect(newTargetPeerId, {
+                        metadata: { uid: this.localUserId },
+                        reliable: true
+                    });
+                    this.hostConnection.on('open', () => {
+                        this.hostConnection.send({ type: 'JOIN_REQ', uid: this.localUserId, name: localPlayerName });
+                        this.startHeartbeatMonitor();
+                    });
+                    this.hostConnection.on('data', (data) => {
+                        if (data.state) {
+                            this.lastHeartbeat = Date.now();
+                            this.backupState = JSON.parse(JSON.stringify(data.state));
+                        }
+                        if (data.type === 'STATE_UPDATE') {
+                            this.gameUI.renderGameState(data.state, this.localUserId);
+                        } else if (data.type === 'ERROR') {
+                            alert(data.message);
+                            this.executeLeaveCleanup();
+                        } else if (data.type === 'HOST_TRANSFER') {
+                            this.handleHostTransfer(data.newHostUid, data.state);
+                        }
+                    });
+                    this.hostConnection.on('close', () => {
+                    });
+                });
+            }
+            startHeartbeat() {
+                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+                this.heartbeatInterval = setInterval(() => {
+                    if (this.isHost && this.gameUI.lastState) {
+                        this.connections.forEach(conn => {
+                            conn.send({ type: 'HEARTBEAT', state: this.gameUI.lastState });
+                        });
+                    }
+                }, 2000);
+            }
+            startHeartbeatMonitor() {
+                if (this.heartbeatMonitor) clearInterval(this.heartbeatMonitor);
+                this.lastHeartbeat = Date.now();
+                this.heartbeatMonitor = setInterval(() => {
+                    if (!this.isHost && this.hostConnection && this.currentRoomId) {
+                        if (Date.now() - this.lastHeartbeat > 6000) {
+                            console.warn("房主心跳丢失！触发紧急坠机恢复协议...");
+                            clearInterval(this.heartbeatMonitor);
+                            this.handleHostCrash();
+                        }
+                    }
+                }, 2000);
+            }
+            handleHostCrash() {
+                if (!this.backupState) {
+                    alert("房主连接中断，且未找到状态备份。");
+                    this.executeLeaveCleanup();
+                    return;
+                }
+                const deadHostId = this.backupState.hostId;
+                const deadHostPlayer = this.backupState.players[deadHostId];
+                if (deadHostPlayer && !deadHostPlayer.isAI) {
+                    deadHostPlayer.isAI = true;
+                    if (!deadHostPlayer.name.startsWith("Bot ")) {
+                        deadHostPlayer.name = "Bot " + deadHostPlayer.name;
+                    }
+                    this.backupState.logs.push(createLog("log_leave_to_ai", { name: deadHostPlayer.name.replace("Bot ", "") }));
+                }
+                const candidates = Object.values(this.backupState.players).filter(p => !p.isAI && p.uid !== deadHostId);
+                if (candidates.length === 0) {
+                    alert("房主阵亡，且房间内无其他真人玩家。游戏结束。");
+                    this.executeLeaveCleanup();
+                    return;
+                }
+                candidates.sort((a, b) => a.uid.localeCompare(b.uid));
+                const successor = candidates[0];
+                console.log(`推选出新房主: ${successor.name} (${successor.uid})`);
+                this.handleHostTransfer(successor.uid, this.backupState);
             }
         }
         class SoundManager {
