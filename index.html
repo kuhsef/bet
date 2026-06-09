@@ -25,7 +25,6 @@
             width: 100vw;
         }
 
-        /* --- Card Styles --- */
         .card {
             width: 42px;
             height: 60px;
@@ -106,7 +105,6 @@
             z-index: 100;
         }
 
-        /* --- Table --- */
         .poker-table {
             background: radial-gradient(circle, #15803d 0%, #064e3b 90%, #022c22 100%);
             box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.9), 0 0 0 12px #374151, 0 0 0 16px #1f2937;
@@ -193,7 +191,6 @@
             z-index: 50;
         }
 
-        /* --- All-in VFX --- */
         .all-in-fullscreen-overlay {
             position: fixed;
             top: 0;
@@ -316,7 +313,6 @@
             pointer-events: none;
         }
 
-        /* --- Loader & Screens --- */
         .loader-screen {
             display: flex;
             flex-direction: column;
@@ -371,7 +367,6 @@
         <div class="spinner"></div>
         <p class="text-gray-400 mt-4 text-sm font-medium" data-i18n="connecting">Connecting to supabase...</p>
     </div>
-
     <!-- Room Selection Screen -->
     <div id="room-screen"
         class="hidden absolute z-50 bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700 w-11/12 max-w-md">
@@ -384,11 +379,9 @@
                 <option value="zh">中文</option>
             </select>
         </div>
-
         <h1 class="text-3xl font-bold text-yellow-500 mb-6 tracking-tight text-center" data-i18n="gameTitle">
             Texas Hold'em
         </h1>
-
         <div class="mb-4">
             <label class="block text-gray-400 mb-2 text-sm font-bold" for="player-name-input"
                 data-i18n="nicknameLabel">Your
@@ -421,7 +414,6 @@
             </button>
         </div>
         <p id="room-error" class="text-red-400 text-sm h-5 text-center"></p>
-
         <div class="mt-6 border-t border-gray-700 pt-4 w-full">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-yellow-500 font-bold text-sm" data-i18n="roomListTitle">Open Rooms</h2>
@@ -435,12 +427,10 @@
                 </p>
             </div>
         </div>
-
         <p class="text-gray-500 text-xs mt-4 text-center">
             User ID: <span id="user-id-display">...</span>
         </p>
     </div>
-
     <!-- Game Area -->
     <div id="game-area" class="hidden w-full h-full relative flex flex-col">
         <div id="top-bar"
@@ -450,7 +440,6 @@
                     <span data-i18n="pot">Pot</span>: $<span id="pot-display">0</span>
                 </div>
             </div>
-
             <div class="flex items-center space-x-4">
                 <div class="flex flex-col items-center mr-1 bg-gray-800 px-2 py-1 rounded border border-gray-700">
                     <span class="text-gray-500 text-[10px] font-bold leading-none mb-1" data-i18n="room">Room</span>
@@ -465,14 +454,12 @@
                         <span data-i18n="online">Online</span>: <span id="active-players-count">0</span>
                     </div>
                 </div>
-
                 <button id="btn-leave-room" onclick="network.leaveRoom()" data-i18n="leaveRoomBtn"
                     class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-2 px-4 rounded-lg text-xs shadow-md">
                     Leave
                 </button>
             </div>
         </div>
-
         <div id="table-area"
             class="flex-grow relative overflow-hidden flex items-center justify-center bg-gray-950 cursor-grab active:cursor-grabbing">
             <div id="table"
@@ -494,7 +481,6 @@
                 <div id="seats-container" class="w-full h-full relative"></div>
             </div>
         </div>
-
         <div id="bottom-bar"
             class="bg-gray-900 p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.5)] z-20 border-t border-gray-800 relative z-50">
             <div id="game-log"
@@ -543,15 +529,12 @@
                     data-i18n="waiting">Waiting</span>
             </div>
         </div>
-
         <div id="waiting-room-overlay"
             class="hidden absolute top-0 left-0 w-full h-full z-40 flex flex-col items-center justify-center pointer-events-none">
             <div id="wait-host-controls"
                 class="hidden pointer-events-auto flex flex-col items-center gap-4 transition-transform duration-300 mb-28">
-
                 <div id="host-settings-panel"
                     class="bg-gray-800/80 p-4 rounded-lg border border-gray-600 w-72 backdrop-blur-sm shadow-lg">
-
                     <div class="mb-3">
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-yellow-500 text-xs font-bold" data-i18n="initialChips">Initial
@@ -562,7 +545,6 @@
                         <input type="number" id="setting-initial-chips" value="2000" step="100"
                             class="w-full bg-gray-900 text-white border border-gray-600 rounded px-2 py-1 text-sm focus:border-yellow-500 outline-none font-mono">
                     </div>
-
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-yellow-500 text-xs font-bold" data-i18n="bigBlind">Big
@@ -576,7 +558,6 @@
                                 Auto</span>: <span id="setting-sb-display" class="text-white font-bold">10</span></p>
                     </div>
                 </div>
-
                 <div class="flex gap-4 w-full justify-center mt-2">
                     <button id="btn-add-ai" onclick="network.addAI()" data-i18n="addAiBtn"
                         class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-6 rounded-lg shadow-md border-b-4 border-indigo-800 active:border-b-0 active:translate-y-1 hidden transition-all">
@@ -587,10 +568,8 @@
                         - Remove AI
                     </button>
                 </div>
-
                 <div id="host-start-btn-container" class="mt-2 w-full flex justify-center"></div>
             </div>
-
             <p id="wait-message"
                 class="mt-8 text-yellow-400 font-bold text-xl drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] pointer-events-auto bg-black/40 px-6 py-2 rounded-lg backdrop-blur-sm border border-white/10"
                 data-i18n="waitForHost">
@@ -598,9 +577,7 @@
             </p>
         </div>
     </div>
-
     <script>
-        // --- I18N SYSTEM (ENHANCED) ---
         const TRANSLATIONS = {
             en: {
                 singlePlayerBtn: "Single Player",
@@ -906,9 +883,7 @@
                 spectatorModeMsg: "游戏进行中，进入观战模式。"
             }
         };
-
         let currentLang = "en";
-
         const t = (key, args = {}) => {
             let text = TRANSLATIONS[currentLang][key] || key;
             Object.keys(args).forEach(argKey => {
@@ -916,11 +891,9 @@
             });
             return text;
         };
-
         const createLog = (key, args = {}) => {
             return JSON.stringify({ key, args });
         };
-
         window.updateLanguage = (lang) => {
             currentLang = lang;
             document.documentElement.lang = lang;
@@ -935,12 +908,10 @@
                 network.renderRoomList();
             }
         };
-
         const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
         const SUITS = ["♠", "♥", "♣", "♦"];
         const RANKS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
         const RANK_VALUES = { 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, J: 11, Q: 12, K: 13, A: 14 };
-
         const PHASE_KEY_MAP = {
             waiting: "waiting",
             preflop: "phase_preflop",
@@ -949,28 +920,22 @@
             river: "phase_river",
             showdown: "phase_showdown",
         };
-
         let localUserId = null;
         let localPlayerName = "Guest";
         let sound;
-
         function processAction(currentState, actingUserId, action, amount = 0) {
             let newState = JSON.parse(JSON.stringify(currentState));
             const config = newState.config || { bigBlind: 20 };
             let player = newState.players[actingUserId];
-
             const currentPlayerId = newState.playerOrder[newState.currentPlayerIndex];
             if (currentPlayerId !== actingUserId) return currentState;
-
             if (player.folded || (player.chips === 0 && newState.phase !== "waiting")) {
                 newState.currentPlayerIndex = (newState.currentPlayerIndex + 1) % newState.playerOrder.length;
                 return newState;
             }
-
             const diff = newState.currentMaxBet - player.currentBet;
             let triggerAllInEffect = false;
             let logJson = "";
-
             if (action === "fold") {
                 player.folded = true;
                 player.status = "status_fold";
@@ -992,53 +957,42 @@
             } else if (action === "raise") {
                 let raiseAmount = amount - player.currentBet;
                 let actualAmount = amount;
-
                 if (actualAmount <= newState.currentMaxBet && raiseAmount < player.chips) return currentState;
                 const extraRaise = actualAmount - newState.currentMaxBet;
-
                 if (extraRaise < newState.lastRaiseAmount && raiseAmount < player.chips) return currentState;
-
                 let isAllIn = raiseAmount >= player.chips;
                 if (isAllIn) {
                     actualAmount = player.chips + player.currentBet;
                     raiseAmount = player.chips;
                     triggerAllInEffect = true;
                 }
-
                 player.chips -= raiseAmount;
                 player.currentBet = actualAmount;
                 newState.pot += raiseAmount;
-
                 const newRaiseAmount = actualAmount - newState.currentMaxBet;
                 if (!isAllIn || newRaiseAmount >= newState.lastRaiseAmount) {
                     newState.lastRaiseAmount = newRaiseAmount;
                 }
                 newState.currentMaxBet = actualAmount;
                 newState.playersActed.length = 0;
-
                 player.status = isAllIn ? "status_all_in" : "status_raise";
                 const logKey = isAllIn ? "log_all_in" : "log_raise";
                 logJson = createLog(logKey, { name: player.name, amount: actualAmount });
             }
-
             if (logJson) {
                 newState.logs.push(logJson);
                 if (newState.logs.length > 20) newState.logs.shift();
             }
-
             if (!newState.playersActed.includes(actingUserId)) {
                 newState.playersActed.push(actingUserId);
             }
-
             const activePlayers = newState.playerOrder.map(uid => newState.players[uid]).filter(p => !p.folded);
             const playersWithChips = activePlayers.filter(p => p.chips > 0);
-
             const isRoundComplete = activePlayers.every(p => {
                 const isAllIn = p.chips === 0 && !p.folded;
                 const matchBet = p.currentBet === newState.currentMaxBet;
                 const hasActed = newState.playersActed.includes(p.uid);
                 if (isAllIn) return true;
-
                 if (newState.phase === 'preflop' && newState.currentMaxBet === config.bigBlind) {
                     let bbIndex;
                     if (newState.playerOrder.length === 2) {
@@ -1050,7 +1004,6 @@
                 }
                 return hasActed && matchBet;
             });
-
             if (activePlayers.length === 1) {
                 newState = advanceToShowdown(newState, activePlayers[0]);
             }
@@ -1072,29 +1025,24 @@
                     break;
                 } while (loops <= newState.playerOrder.length * 2);
             }
-
             if (triggerAllInEffect) {
                 newState.lastAllInPlayer = player.uid + "_" + Date.now();
             }
             return newState;
         }
-
         function advanceToNextPhase(currentState) {
             let newState = JSON.parse(JSON.stringify(currentState));
             const config = newState.config || { bigBlind: 20 };
             newState = returnExcessBets(newState);
-
             newState.playerOrder.forEach(uid => {
                 const p = newState.players[uid];
                 p.accumulatedBet += p.currentBet;
                 p.currentBet = 0;
                 p.status = "";
             });
-
             newState.currentMaxBet = 0;
             newState.lastRaiseAmount = config.bigBlind;
             newState.playersActed = [];
-
             if (newState.phase === "preflop") {
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
@@ -1111,7 +1059,6 @@
                 newState = advanceToShowdown(newState);
                 return newState;
             }
-
             let nextIdx = (newState.dealerIndex + 1) % newState.playerOrder.length;
             let loops = 0;
             while (loops <= newState.playerOrder.length) {
@@ -1123,20 +1070,16 @@
             newState.currentPlayerIndex = nextIdx;
             return newState;
         }
-
         function runAutoShowdown(currentState) {
             let newState = JSON.parse(JSON.stringify(currentState));
             newState = returnExcessBets(newState);
-
             newState.playerOrder.forEach(uid => {
                 const p = newState.players[uid];
                 p.accumulatedBet += p.currentBet;
                 p.currentBet = 0;
                 p.status = p.chips === 0 && !p.folded ? "status_all_in" : p.status;
             });
-
             newState.currentPlayerIndex = -1;
-
             if (newState.phase === "preflop") {
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
@@ -1158,16 +1101,13 @@
             }
             return newState;
         }
-
         function returnExcessBets(currentState) {
             let newState = JSON.parse(JSON.stringify(currentState));
             const activePlayers = newState.playerOrder.map(uid => newState.players[uid]).filter(p => !p.folded);
             if (activePlayers.length < 2) return newState;
-
             const sortedPlayers = [...activePlayers].sort((a, b) => b.currentBet - a.currentBet);
             const highest = sortedPlayers[0];
             const secondHighest = sortedPlayers[1];
-
             if (highest.currentBet > secondHighest.currentBet) {
                 const refund = highest.currentBet - secondHighest.currentBet;
                 const playerToRefund = newState.players[highest.uid];
@@ -1178,12 +1118,10 @@
             }
             return newState;
         }
-
         function advanceToShowdown(currentState, soleWinner = null) {
             let newState = JSON.parse(JSON.stringify(currentState));
             newState.phase = "showdown";
             newState.currentPlayerIndex = -1;
-
             if (soleWinner) {
                 const winnerPlayer = newState.players[soleWinner.uid];
                 newState.playerOrder.forEach(uid => newState.players[uid].currentBet = 0);
@@ -1202,18 +1140,15 @@
                 newState.pot = finalPot;
                 const allPlayers = newState.playerOrder.map(uid => newState.players[uid]);
                 const activePlayers = allPlayers.filter(p => !p.folded);
-
                 if (activePlayers.length === 0) {
                     newState.logs.push(createLog("log_round_end_no_winner"));
                 } else {
                     activePlayers.forEach(p => {
                         p.bestHand = HandEvaluator.evaluate(p.holeCards, newState.communityCards);
                     });
-
                     let distinctBets = [...new Set(activePlayers.map(p => p.accumulatedBet))].filter(bet => bet > 0).sort((a, b) => a - b);
                     let winnerLogs = [];
                     newState.highlightCards = new Set();
-
                     let prevBet = 0;
                     distinctBets.forEach((betLevel, index) => {
                         let potAmount = 0;
@@ -1221,12 +1156,10 @@
                             if (p.accumulatedBet >= betLevel) potAmount += betLevel - prevBet;
                             else if (p.accumulatedBet > prevBet) potAmount += p.accumulatedBet - prevBet;
                         });
-
                         let contributors = activePlayers.filter(p => p.accumulatedBet >= betLevel);
                         if (potAmount > 0 && contributors.length > 0) {
                             let bestScore = -1;
                             let winners = [];
-
                             contributors.forEach(p => {
                                 if (p.bestHand.score > bestScore) {
                                     bestScore = p.bestHand.score;
@@ -1235,19 +1168,15 @@
                                     winners.push(p);
                                 }
                             });
-
                             const winPer = Math.floor(potAmount / winners.length);
                             let remainder = potAmount % winners.length;
-
                             const potNameKey = index === 0 ? "main_pot" : "side_pot";
                             let winnerNames = winners.map(w => w.name).join(", ");
-
                             winnerLogs.push(createLog("log_showdown_result", {
                                 potName: index === 0 ? "Main" : `Side ${index}`,
                                 amount: potAmount,
                                 winners: winnerNames
                             }));
-
                             winners.forEach(w => {
                                 let winnings = winPer;
                                 if (remainder > 0) { winnings++; remainder--; }
@@ -1258,7 +1187,6 @@
                         }
                         prevBet = betLevel;
                     });
-
                     newState.highlightCards = Array.from(newState.highlightCards);
                     newState.logs.push(...winnerLogs);
                 }
@@ -1267,16 +1195,13 @@
             sound.playHandEnd();
             return newState;
         }
-
         function startNewRound(currentState) {
             let newState = JSON.parse(JSON.stringify(currentState));
             const config = newState.config || { initialChips: 2000, smallBlind: 10, bigBlind: 20 };
             const bigBlindVal = parseInt(config.bigBlind) || 20;
             const smallBlindVal = parseInt(config.smallBlind) || 10;
-
             let activePlayerIds = [];
             const allPlayerIds = currentState.playerOrder;
-
             allPlayerIds.forEach(uid => {
                 if (newState.players[uid].chips > 0) activePlayerIds.push(uid);
                 else {
@@ -1284,16 +1209,13 @@
                     newState.players[uid].status = "status_eliminated";
                 }
             });
-
             if (activePlayerIds.length < 2) {
                 const winnerId = activePlayerIds.length > 0 ? activePlayerIds[0] : null;
                 const winnerName = winnerId ? newState.players[winnerId].name : "No one";
                 let newLogs = [...newState.logs];
                 newLogs.push(createLog("log_game_over", { name: winnerName }));
-
                 const resetPlayers = {};
                 let currentOrder = [...newState.playerOrder];
-
                 currentOrder.forEach(uid => {
                     const p = newState.players[uid];
                     if (p) {
@@ -1309,10 +1231,8 @@
                         };
                     }
                 });
-
                 let nextSpectators = [];
                 let currentSpectators = currentState.spectators || [];
-
                 currentSpectators.forEach(spec => {
                     const specObj = typeof spec === 'object' ? spec : { uid: spec, name: "Spectator" };
                     if (currentOrder.length < 10) {
@@ -1335,7 +1255,6 @@
                         nextSpectators.push(specObj);
                     }
                 });
-
                 return {
                     status: "waiting",
                     hostId: newState.hostId,
@@ -1359,7 +1278,6 @@
                     lastAllInPlayer: null
                 };
             }
-
             newState.playerOrder = activePlayerIds;
             newState.communityCards = [];
             newState.pot = 0;
@@ -1372,7 +1290,6 @@
             newState.nextRoundTimer = 0;
             newState.nextPhaseTimer = 0;
             newState.lastAllInPlayer = null;
-
             newState.playerOrder.forEach(uid => {
                 const p = newState.players[uid];
                 p.holeCards = [];
@@ -1382,7 +1299,6 @@
                 p.status = "";
                 p.bestHand = null;
             });
-
             let deck = [];
             for (let suit of SUITS) {
                 for (let rank of RANKS) {
@@ -1394,7 +1310,6 @@
                 [deck[i], deck[j]] = [deck[j], deck[i]];
             }
             newState.deck = deck;
-
             const oldOrder = currentState.playerOrder;
             const oldDealerIndex = currentState.dealerIndex;
             let nextDealerId = null;
@@ -1410,7 +1325,6 @@
             const newDealerIndex = newState.playerOrder.indexOf(nextDealerId);
             newState.dealerIndex = newDealerIndex !== -1 ? newDealerIndex : 0;
             const numPlayers = newState.playerOrder.length;
-
             let sbIndex, bbIndex;
             if (numPlayers === 2) {
                 sbIndex = newState.dealerIndex;
@@ -1419,39 +1333,31 @@
                 sbIndex = (newState.dealerIndex + 1) % numPlayers;
                 bbIndex = (newState.dealerIndex + 2) % numPlayers;
             }
-
             const sbPlayer = newState.players[newState.playerOrder[sbIndex]];
             const bbPlayer = newState.players[newState.playerOrder[bbIndex]];
-
             const sbAmount = Math.min(smallBlindVal, sbPlayer.chips);
             sbPlayer.chips -= sbAmount;
             sbPlayer.currentBet = sbAmount;
-
             if (sbPlayer.chips === 0) {
                 sbPlayer.status = "status_all_in";
                 newState.lastAllInPlayer = sbPlayer.uid + "_" + Date.now();
             } else {
                 sbPlayer.status = "status_small_blind";
             }
-
             const bbAmount = Math.min(bigBlindVal, bbPlayer.chips);
             bbPlayer.chips -= bbAmount;
             bbPlayer.currentBet = bbAmount;
-
             if (bbPlayer.chips === 0) {
                 bbPlayer.status = "status_all_in";
                 newState.lastAllInPlayer = bbPlayer.uid + "_" + Date.now();
             } else {
                 bbPlayer.status = "status_big_blind";
             }
-
             newState.pot = sbAmount + bbAmount;
             newState.currentMaxBet = bigBlindVal;
-
             for (let i = 0; i < 2; i++) {
                 for (let uid of newState.playerOrder) newState.players[uid].holeCards.push(newState.deck.pop());
             }
-
             let nextIdx = (bbIndex + 1) % numPlayers;
             let loopCount = 0;
             while (loopCount < numPlayers) {
@@ -1461,12 +1367,9 @@
                 loopCount++;
             }
             newState.currentPlayerIndex = nextIdx;
-
             newState.logs.push(createLog("log_new_round"));
             return newState;
         }
-
-        // --- UI MANAGER ---
         class GameUIManager {
             constructor() {
                 this.sound = new SoundManager();
@@ -1479,45 +1382,35 @@
                 this.bankruptcyScreenShown = false;
                 this.lastAllInPlayerTriggered = null;
                 this.isSliderReset = false;
-
                 document.getElementById("raise-slider").oninput = () => {
                     const slider = document.getElementById("raise-slider");
                     const btnRaise = document.getElementById("btn-raise");
                     const valDisplay = document.getElementById("raise-val-display");
                     if (slider && btnRaise && valDisplay && !slider.disabled) {
-                        const raiseVal = parseInt(slider.value); // 后端需要的总额
+                        const raiseVal = parseInt(slider.value);
                         const maxVal = parseInt(slider.max);
-
-                        // 【新增】读取玩家当前已经下注的金额
                         const currentBet = parseInt(slider.dataset.currentBet) || 0;
-                        const displayVal = raiseVal - currentBet; // 【新增】计算视觉上需要展示的差额
-
-                        valDisplay.innerText = `$${displayVal}`; // 显示差额
-                        btnRaise.innerText = raiseVal === maxVal ? t("allInBtn") : `${t("raiseBtn")} $${displayVal}`; // 按钮也显示差额
+                        const displayVal = raiseVal - currentBet;
+                        valDisplay.innerText = `$${displayVal}`;
+                        btnRaise.innerText = raiseVal === maxVal ? t("allInBtn") : `${t("raiseBtn")} $${displayVal}`;
                     }
                 };
             }
-
             initSound() {
                 this.sound.init();
                 sound = this.sound;
             }
-
-            // 【完全修复作用域错误】：将 updateWaitingRoomUI 放回 GameUIManager 内，彻底杜绝 not a function 报错
             updateWaitingRoomUI(state, localId) {
                 const hostControls = document.getElementById("wait-host-controls");
                 const btnContainer = document.getElementById("host-start-btn-container");
                 const waitMessage = document.getElementById("wait-message");
-
                 if (state.hostId === localId) {
                     hostControls.classList.remove("hidden");
                     if (waitMessage) waitMessage.classList.add("hidden");
-
                     const btnAddAi = document.getElementById("btn-add-ai");
                     const btnRemoveAi = document.getElementById("btn-remove-ai");
                     if (btnAddAi) btnAddAi.classList.remove("hidden");
                     if (btnRemoveAi) btnRemoveAi.classList.remove("hidden");
-
                     const playerCount = state.playerOrder.length;
                     if (playerCount < 2) {
                         if (btnContainer) {
@@ -1541,7 +1434,6 @@
                     const errChips = document.getElementById("error-chips-inline");
                     const errBlind = document.getElementById("error-blind-inline");
                     const startBtn = document.getElementById("btn-start-game");
-
                     const validateInputs = () => {
                         let isValid = true;
                         const chipsVal = parseInt(chipsInput.value) || 0;
@@ -1572,14 +1464,12 @@
                             }
                         }
                     };
-
                     if (chipsInput) {
                         chipsInput.oninput = () => {
                             chipsInput.value = chipsInput.value.replace(/[^\d]/g, '');
                             validateInputs();
                         };
                     }
-
                     if (bbInput) {
                         bbInput.oninput = () => {
                             bbInput.value = bbInput.value.replace(/[^\d]/g, '');
@@ -1590,12 +1480,10 @@
                 } else {
                     hostControls.classList.add("hidden");
                     if (btnContainer) btnContainer.innerHTML = "";
-
                     const btnAddAi = document.getElementById("btn-add-ai");
                     const btnRemoveAi = document.getElementById("btn-remove-ai");
                     if (btnAddAi) btnAddAi.classList.add("hidden");
                     if (btnRemoveAi) btnRemoveAi.classList.add("hidden");
-
                     const hostPlayer = state.players[state.hostId];
                     const hostName = hostPlayer ? hostPlayer.name : "Host";
                     if (waitMessage) {
@@ -1604,16 +1492,12 @@
                     }
                 }
             }
-
             renderGameState(state, localId) {
                 if (!state) return;
                 this.initSound();
-
                 const lastLogStr = state.logs.length > 0 ? state.logs[state.logs.length - 1] : "";
                 const prevLogStr = (this.lastState && this.lastState.logs.length > 0) ? this.lastState.logs[this.lastState.logs.length - 1] : "";
-
                 const hasNewLog = this.lastState && (state.logs.length > this.lastState.logs.length || (state.logs.length > 0 && lastLogStr !== prevLogStr));
-
                 if (hasNewLog) {
                     let logKey = "";
                     try {
@@ -1622,19 +1506,16 @@
                     } catch (e) {
                         logKey = lastLogStr;
                     }
-
                     if (logKey === "log_fold") this.sound.playFold();
                     else if (logKey === "log_check") this.sound.playCheck();
                     else if (logKey === "log_call") this.sound.playChip();
                     else if (logKey === "log_raise") this.sound.playRaise();
                     if (["log_phase_flop", "log_phase_turn", "log_phase_river"].includes(logKey)) this.sound.playCard();
                 }
-
                 this.highlightCards = new Set(state.highlightCards || []);
                 const playerCount = state.playerOrder ? state.playerOrder.length : 0;
                 const countEl = document.getElementById("active-players-count");
                 if (countEl) countEl.innerText = playerCount;
-
                 if (state.lastAllInPlayer && (!this.lastState || state.lastAllInPlayer !== this.lastState.lastAllInPlayer)) {
                     if (state.lastAllInPlayer !== this.lastAllInPlayerTriggered) {
                         this.showAllInEffect(state.lastAllInPlayer);
@@ -1642,23 +1523,17 @@
                     }
                 }
                 if (state.phase === "showdown") this.lastAllInPlayerTriggered = null;
-
                 this.lastState = state;
                 this.localPlayerId = localId;
                 const localPlayer = state.players[localId];
-
                 document.getElementById("pot-display").innerText = state.pot;
-
                 const phaseKey = PHASE_KEY_MAP[state.phase] || state.phase;
                 document.getElementById("phase-display").innerText = t(phaseKey);
-
                 if (state.config) {
                     const blindsEl = document.getElementById("blinds-display");
                     if (blindsEl) blindsEl.innerText = `${t("bigBlind")} $${state.config.bigBlind}`;
                 }
-
                 this.renderTableLayout(state, localId);
-
                 for (let i = 0; i < 5; i++) {
                     const slot = document.getElementById(`comm-slot-${i}`);
                     if (!slot) continue;
@@ -1678,7 +1553,6 @@
                         slot.innerHTML = "";
                     }
                 }
-
                 const logDiv = document.getElementById("game-log");
                 logDiv.innerHTML = state.logs.map((logStr) => {
                     let displayMsg = logStr;
@@ -1698,14 +1572,11 @@
                     return `<div>> ${displayMsg}</div>`;
                 }).join("");
                 logDiv.scrollTop = logDiv.scrollHeight;
-
                 this.updateControls(state);
-
                 if (localPlayer) {
                     const lastLog = state.logs.length > 0 ? state.logs[state.logs.length - 1] : "";
                     const isChampion = state.status === "waiting" && state.highlightWinner === localId && lastLog.includes("log_game_over");
                     const isEliminated = localPlayer.status === "status_eliminated" && localPlayer.chips === 0;
-
                     if (isChampion) {
                         if (!this.bankruptcyScreenShown) {
                             this.sound.playWin();
@@ -1724,17 +1595,14 @@
                         this.bankruptcyScreenShown = false;
                     }
                 }
-
                 const waitOverlay = document.getElementById("waiting-room-overlay");
                 if (state.status === "waiting") {
                     waitOverlay.classList.remove("hidden");
-                    // 【关键修复】这里改为调用内部的方法，而不是调用全局的 network
                     this.updateWaitingRoomUI(state, localId);
                 } else {
                     waitOverlay.classList.add("hidden");
                 }
             }
-
             renderTableLayout(state, localId) {
                 const container = document.getElementById("seats-container");
                 const playerIdsToRender = state.phase === "waiting" || state.status === "waiting" ? state.playerOrder : state.playerOrder;
@@ -1749,7 +1617,6 @@
                 const cy = h / 2;
                 const localIndex = playerIdsToRender.indexOf(localId);
                 const renderIndex = localIndex === -1 ? 0 : localIndex;
-
                 let scale = 1, radiusX = 0.38, radiusY = 0.38;
                 if (num > 6) { scale = 0.85; radiusX = 0.42; radiusY = 0.42; }
                 if (num >= 9) { scale = 0.75; radiusX = 0.44; radiusY = 0.44; }
@@ -1761,14 +1628,11 @@
                 const rx = w * radiusX;
                 const ry = h * radiusY;
                 const activeSeatIds = new Set();
-
                 playerIdsToRender.forEach((uid, i) => {
                     const p = state.players[uid];
                     if (!p) return;
-
                     const seatId = `seat-${p.uid}`;
                     activeSeatIds.add(seatId);
-
                     let seatDiv = document.getElementById(seatId);
                     if (!seatDiv) {
                         seatDiv = document.createElement("div");
@@ -1784,23 +1648,18 @@
               </div>`;
                         container.appendChild(seatDiv);
                     }
-
                     const offsetIndex = (i - renderIndex + num) % num;
                     const angle = Math.PI / 2 + (offsetIndex * (2 * Math.PI)) / num;
                     const x = cx + rx * Math.cos(angle);
                     const y = cy + ry * Math.sin(angle);
-
                     seatDiv.style.left = `${x - 60}px`;
                     seatDiv.style.top = `${y - 55}px`;
                     seatDiv.style.transform = `scale(${scale})`;
-
                     seatDiv.querySelector(`#name-${p.uid}`).innerText = p.name;
                     seatDiv.querySelector(`#chips-${p.uid}`).innerText = p.chips;
-
                     const dealerBtn = seatDiv.querySelector(`#dealer-${p.uid}`);
                     if (i === state.dealerIndex) dealerBtn.classList.remove("hidden");
                     else dealerBtn.classList.add("hidden");
-
                     let statusText = "";
                     if (p.currentBet > 0) statusText = `${t("bet_prefix")} $${p.currentBet}`;
                     else if (p.status) {
@@ -1808,7 +1667,6 @@
                         if (p.status.startsWith("hand_")) statusText = t(p.status);
                     }
                     seatDiv.querySelector(`#status-${p.uid}`).innerText = statusText;
-
                     if (state.playerOrder[state.currentPlayerIndex] === p.uid && state.phase !== "showdown") {
                         seatDiv.classList.add("active-player");
                     } else {
@@ -1817,18 +1675,14 @@
                     if (state.highlightWinner === p.uid) seatDiv.classList.add("winner-highlight");
                     else seatDiv.classList.remove("winner-highlight");
                     seatDiv.style.opacity = p.folded ? 0.4 : 1;
-
                     const cardsContainer = document.getElementById(`cards-${p.uid}`);
                     const activePlayersCount = Object.values(state.players).filter(player => !player.folded).length;
                     const shouldShowFace = !p.folded && p.holeCards && p.holeCards.length > 0 &&
                         (p.uid === localId || (state.phase === "showdown" && activePlayersCount > 1));
-
                     if (shouldShowFace) {
                         if (cardsContainer.querySelector('.card-back')) cardsContainer.innerHTML = "";
-
                         p.holeCards.forEach((c, cardIdx) => {
                             let cardEl = cardsContainer.children[cardIdx];
-
                             if (!cardEl || cardEl.dataset.cid !== c.id) {
                                 const newCard = this.createCardEl(c);
                                 newCard.dataset.cid = c.id;
@@ -1836,14 +1690,12 @@
                                 else cardsContainer.appendChild(newCard);
                                 cardEl = newCard;
                             }
-
                             if (this.highlightCards.has(c.id)) {
                                 if (!cardEl.classList.contains("winning-card")) cardEl.classList.add("winning-card");
                             } else {
                                 cardEl.classList.remove("winning-card");
                             }
                         });
-
                         while (cardsContainer.children.length > p.holeCards.length) {
                             cardsContainer.removeChild(cardsContainer.lastChild);
                         }
@@ -1857,19 +1709,16 @@
                         cardsContainer.innerHTML = "";
                     }
                 });
-
                 Array.from(container.children).forEach(child => {
                     if (!activeSeatIds.has(child.id)) {
                         container.removeChild(child);
                     }
                 });
             }
-
             updateControls(state) {
                 if (!state || !state.players || !this.localPlayerId) return;
                 const localPlayer = state.players[this.localPlayerId];
                 const controls = document.getElementById("player-controls");
-
                 if (!localPlayer) {
                     controls.classList.add("opacity-50", "pointer-events-none", "translate-y-2");
                     const btnCheck = document.getElementById("btn-check");
@@ -1882,7 +1731,6 @@
                 }
                 const currentTurnPlayerId = state.playerOrder[state.currentPlayerIndex];
                 const currentTurnPlayer = state.players[currentTurnPlayerId];
-
                 if (state.status === "playing" && state.phase !== "showdown" && state.phase !== "waiting") {
                     if (this.lastActivePlayerId !== currentTurnPlayerId) {
                         this.lastActivePlayerId = currentTurnPlayerId;
@@ -1896,29 +1744,24 @@
                 } else {
                     this.lastActivePlayerId = null;
                 }
-
                 const isMyTurn = currentTurnPlayerId === this.localPlayerId;
                 const canAct = isMyTurn && !localPlayer.folded && localPlayer.chips > 0 && state.phase !== "showdown";
-
                 if (!canAct) {
                     controls.classList.add("opacity-50", "pointer-events-none", "translate-y-2");
                     this.isSliderReset = false;
                     return;
                 }
                 controls.classList.remove("opacity-50", "pointer-events-none", "translate-y-2");
-
                 const diff = state.currentMaxBet - localPlayer.currentBet;
                 const btnCheck = document.getElementById("btn-check");
                 const btnCall = document.getElementById("btn-call");
                 const btnRaise = document.getElementById("btn-raise");
                 const slider = document.getElementById("raise-slider");
                 const valDisplay = document.getElementById("raise-val-display");
-
                 btnCheck.innerText = t("checkBtn");
                 btnCall.innerText = t("callBtn");
                 btnRaise.innerText = t("raiseBtn");
                 document.querySelector('[data-i18n="foldBtn"]').innerText = t("foldBtn");
-
                 if (diff === 0) {
                     btnCheck.classList.remove("hidden");
                     btnCall.classList.add("hidden");
@@ -1928,10 +1771,8 @@
                     if (localPlayer.chips <= diff) btnCall.innerText = t("allInBtn");
                     else btnCall.innerText = `${t("callBtn")} $${diff}`;
                 }
-
                 const minPossibleActionRaise = state.currentMaxBet + state.lastRaiseAmount;
                 const maxPossibleActionRaise = localPlayer.chips + localPlayer.currentBet;
-
                 if (localPlayer.chips <= diff) {
                     btnRaise.classList.add("hidden");
                     document.getElementById("raise-slider-container").classList.add("hidden");
@@ -1955,17 +1796,11 @@
                         this.isSliderReset = true;
                     }
                     slider.disabled = false;
-
-                    // 【新增】把当前下注额存入 slider 的 dataset，供滑动事件读取
                     slider.dataset.currentBet = localPlayer.currentBet;
-
                     const updateBtnText = () => {
                         const raiseVal = parseInt(slider.value);
-
-                        // 【新增】计算并展示差额
                         const currentBet = localPlayer.currentBet;
                         const displayVal = raiseVal - currentBet;
-
                         valDisplay.innerText = `$${displayVal}`;
                         if (raiseVal === maxPossibleActionRaise) btnRaise.innerText = t("allInBtn");
                         else btnRaise.innerText = `${t("raiseBtn")} $${displayVal}`;
@@ -1973,7 +1808,6 @@
                     updateBtnText();
                 }
             }
-
             adjustRaise(direction) {
                 const slider = document.getElementById("raise-slider");
                 if (!slider || slider.disabled) return;
@@ -1987,7 +1821,6 @@
                 slider.value = newVal;
                 slider.dispatchEvent(new Event("input"));
             }
-
             showMessage(msg) {
                 const el = document.getElementById("game-message");
                 if (!el) return;
@@ -2001,7 +1834,6 @@
                     el.style.opacity = 0;
                 }, 3000);
             }
-
             showAllInEffect(playerName) {
                 return new Promise((resolve) => {
                     const overlay = document.createElement("div");
@@ -2025,7 +1857,6 @@
                     }, 1250);
                 });
             }
-
             createCardEl(c) {
                 const d = document.createElement("div");
                 d.className = `card ${c.color}`;
@@ -2039,17 +1870,13 @@
                 return d;
             }
         }
-
-        // --- AI 控制器 ---
         class AIController {
             static playTurn(state, aiUid, hostCallback) {
                 const player = state.players[aiUid];
                 const diff = state.currentMaxBet - player.currentBet;
-
                 setTimeout(() => {
                     let action = 'fold';
                     let amount = 0;
-
                     if (state.phase === 'preflop') {
                         if (diff === 0) action = 'check';
                         else if (diff <= (state.config?.bigBlind || 20) * 2) action = 'call';
@@ -2071,43 +1898,33 @@
                             else action = 'fold';
                         }
                     }
-
                     if (action === 'call' && diff >= player.chips) action = 'call';
                     if (action === 'raise') amount = player.currentBet + amount;
-
                     if (amount >= player.chips + player.currentBet && action === 'raise') {
                         amount = player.chips + player.currentBet;
                     }
-
                     hostCallback(aiUid, action, amount);
                 }, 1500 + Math.random() * 1500);
             }
         }
-
-        // --- 基于 P2P 和 MQTT 的 NetworkManager ---
         class NetworkManager {
             constructor(gameUI) {
                 this.gameUI = gameUI;
                 this.localUserId = null;
                 this.currentRoomId = null;
                 this.isHost = false;
-
                 this.peer = null;
                 this.connections = [];
                 this.hostConnection = null;
                 this.mqttClient = null;
-
                 this.activeRooms = {};
                 this.roomListInterval = null;
                 this.broadcastInterval = null;
-
                 this.nextPhaseTimeout = null;
                 this.nextRoundTimeout = null;
                 this.aiThinkingUid = null;
             }
-
             init() {
-                // 【修复1：防崩溃保护】防止浏览器隐私设置强行拦截 sessionStorage 导致整个游戏白屏卡死
                 let storedId = null;
                 try {
                     storedId = sessionStorage.getItem("poker_user_id");
@@ -2116,42 +1933,30 @@
                         sessionStorage.setItem("poker_user_id", storedId);
                     }
                 } catch (e) {
-                    // 如果被浏览器安全策略拦截，降级为纯内存变量
                     console.warn("SessionStorage access denied by browser, using temporary ID.");
                     storedId = "user_" + Math.random().toString(36).substr(2, 9);
                 }
-
                 this.localUserId = storedId;
                 localUserId = storedId;
-
                 document.getElementById("user-id-display").innerText = this.localUserId;
                 document.getElementById("loader-screen").classList.add("hidden");
                 document.getElementById("room-screen").classList.remove("hidden");
-
                 this.initMQTT();
                 this.startRoomAutoRefresh();
             }
-
             initMQTT() {
                 try {
-                    // 1. 生成一个随机的 clientId，防止在公共测试服务器上因为 ID 冲突被强行踢下线
                     const clientId = 'th_client_' + Math.random().toString(16).substring(2, 10);
-
-                    // 2. 添加连接配置：心跳保活(keepalive)和自动重连机制
                     const options = {
                         clientId: clientId,
-                        keepalive: 30,         // 每30秒发送一次心跳，防止被 EMQX 清理
-                        reconnectPeriod: 5000, // 断开后5秒自动重连
-                        connectTimeout: 10000  // 连接超时时间
+                        keepalive: 30,
+                        reconnectPeriod: 5000,
+                        connectTimeout: 10000
                     };
-
                     console.log("正在连接 MQTT 服务器...");
                     this.mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt', options);
-
-                    // 3. 监听连接成功事件
                     this.mqttClient.on('connect', () => {
                         console.log("MQTT 连接成功! ClientID:", clientId);
-                        // 加上错误回调，确认是否真的订阅上了
                         this.mqttClient.subscribe('texas-holdem-p2p-rooms-v1', (err) => {
                             if (err) {
                                 console.error("MQTT 订阅房间频道失败:", err);
@@ -2160,47 +1965,39 @@
                             }
                         });
                     });
-
-                    // 4. 增强的异常和状态监听（帮你以后快速排查问题）
                     this.mqttClient.on('error', (err) => {
                         console.error("MQTT 发生错误:", err);
                     });
-
                     this.mqttClient.on('offline', () => {
                         console.warn("MQTT 掉线，处于离线状态...");
                     });
-
                     this.mqttClient.on('reconnect', () => {
                         console.log("MQTT 正在尝试重新连接...");
                     });
-
                     this.mqttClient.on('close', () => {
                         console.warn("MQTT 连接已物理关闭");
                     });
-
-                    // 5. 原有的消息处理逻辑保持不变
                     this.mqttClient.on('message', (topic, message) => {
                         if (topic === 'texas-holdem-p2p-rooms-v1') {
                             try {
                                 const roomData = JSON.parse(message.toString());
+                                if (roomData.lastSeen === 0) {
+                                    delete this.activeRooms[roomData.id];
+                                    this.renderRoomList();
+                                    return;
+                                }
                                 roomData.lastSeen = Date.now();
                                 this.activeRooms[roomData.id] = roomData;
-                                // 你可以选择在这里加一行 log 看别人建的房间数据有没有推过来
-                                // console.log("收到房间广播:", roomData.id);
-                            } catch (e) {
-                                // 忽略非 JSON 格式的脏数据
-                            }
+                            } catch (e) { }
                         }
                     });
                 } catch (e) {
                     console.error("MQTT 初始化严重异常:", e);
                 }
             }
-
             fetchRoomList() {
                 this.renderRoomList();
             }
-
             startRoomAutoRefresh() {
                 this.stopRoomAutoRefresh();
                 this.fetchRoomList();
@@ -2214,33 +2011,27 @@
                     this.renderRoomList();
                 }, 3000);
             }
-
             stopRoomAutoRefresh() {
                 if (this.roomListInterval) clearInterval(this.roomListInterval);
             }
-
             renderRoomList() {
                 const listEl = document.getElementById("room-list");
                 if (!listEl) return;
-
                 const rooms = Object.values(this.activeRooms);
                 if (rooms.length === 0) {
                     listEl.innerHTML = `<p class="text-gray-500 text-xs text-center mt-4">${t('noActiveRooms')}</p>`;
                     return;
                 }
-
                 listEl.innerHTML = "";
                 rooms.forEach(room => {
                     const statusColor = room.isPlaying ? "text-red-400" : "text-green-400";
                     const statusText = room.isPlaying ? t('status_playing_list') : t('status_waiting_list');
-
                     const item = document.createElement("div");
                     item.className = "bg-gray-700 hover:bg-gray-600 p-2 rounded cursor-pointer flex justify-between items-center transition-colors mb-2";
                     item.onclick = () => {
                         document.getElementById("room-id-input").value = room.id;
                         this.joinRoom();
                     };
-
                     item.innerHTML = `
                         <div class="flex flex-col">
                             <span class="font-bold text-white text-xs">${room.id}</span>
@@ -2254,7 +2045,6 @@
                     listEl.appendChild(item);
                 });
             }
-
             validateInputs() {
                 const name = document.getElementById("player-name-input").value.trim();
                 const room = document.getElementById("room-id-input").value.trim();
@@ -2271,7 +2061,6 @@
                 errEl.innerText = "";
                 return room;
             }
-
             enterGameRoom() {
                 document.getElementById("display-room-id").innerText = this.currentRoomId;
                 document.getElementById("room-screen").classList.add("hidden");
@@ -2280,19 +2069,15 @@
                 this.gameUI.occlusionManager.start();
                 this.stopRoomAutoRefresh();
             }
-
-            // --- 房主 (Host) 逻辑 ---
             async createRoom() {
                 const roomId = this.validateInputs();
                 if (!roomId) return;
                 this.disableRoomButtons(true);
-
                 this.isHost = true;
                 this.currentRoomId = roomId;
-
                 const hostPeerId = `th-p2p-room-${roomId}`;
                 this.peer = new Peer(hostPeerId, {
-                    debug: 2, // 开启日志：2打印警告和错误，3打印所有信息
+                    debug: 2,
                     config: {
                         'iceServers': [
                             { urls: 'stun:stun.l.google.com:19302' },
@@ -2300,8 +2085,6 @@
                         ]
                     }
                 });
-
-                // 【修复2：超时防卡死】如果校园网/公司网屏蔽了连接，8秒后强制解开按钮，避免永远灰显
                 let connectionTimeout = setTimeout(() => {
                     if (this.isHost && this.currentRoomId) {
                         document.getElementById("room-error").innerText = "Connection timeout. Firewall blocking P2P?";
@@ -2311,14 +2094,11 @@
                         this.currentRoomId = null;
                     }
                 }, 15000);
-
                 this.peer.on('open', (id) => {
-                    clearTimeout(connectionTimeout); // 连接成功，取消超时报警
+                    clearTimeout(connectionTimeout);
                     this.disableRoomButtons(false);
-
                     this.enterGameRoom();
                     this.initGameState();
-
                     const broadcastRoom = () => {
                         if (this.isHost && this.mqttClient && this.mqttClient.connected && this.gameUI.lastState) {
                             this.mqttClient.publish('texas-holdem-p2p-rooms-v1', JSON.stringify({
@@ -2333,7 +2113,6 @@
                     broadcastRoom();
                     this.broadcastInterval = setInterval(broadcastRoom, 4000);
                 });
-
                 this.peer.on('connection', (conn) => {
                     this.connections.push(conn);
                     conn.on('data', (data) => this.handleGuestData(conn, data));
@@ -2342,7 +2121,6 @@
                         this.handlePlayerLeave(conn.metadata?.uid);
                     });
                 });
-
                 this.peer.on('error', (err) => {
                     clearTimeout(connectionTimeout);
                     console.error("Peer Error:", err);
@@ -2356,7 +2134,6 @@
                     this.currentRoomId = null;
                 });
             }
-
             initGameState() {
                 const newPlayer = {
                     uid: this.localUserId,
@@ -2370,7 +2147,6 @@
                     status: "waiting",
                     isAI: false
                 };
-
                 let state = {
                     status: "waiting",
                     hostId: this.localUserId,
@@ -2393,17 +2169,12 @@
                     nextPhaseTimer: 0,
                     lastAllInPlayer: null
                 };
-
                 this.gameUI.renderGameState(state, this.localUserId);
             }
-
-            // 【深拷贝保护】：杜绝 Vue/React 无法监测到引用的问题
             broadcastState(newState) {
                 if (!this.isHost || !newState) return;
-
                 this.connections.forEach(conn => {
                     let stateToSend = JSON.parse(JSON.stringify(newState));
-
                     if (stateToSend.phase !== 'showdown') {
                         Object.values(stateToSend.players).forEach(p => {
                             if (p.uid !== conn.metadata?.uid && p.holeCards && p.holeCards.length > 0) {
@@ -2413,29 +2184,22 @@
                     }
                     conn.send({ type: 'STATE_UPDATE', state: stateToSend });
                 });
-
                 this.gameUI.renderGameState(newState, this.localUserId);
-
                 this.checkAITurn();
                 this.runHostTimerController(newState);
             }
-
-            // --- 客机 (Guest) 逻辑 ---
             joinRoom() {
                 const roomId = this.validateInputs();
                 if (!roomId) return;
-
                 this.disableRoomButtons(true);
                 this.isHost = false;
                 this.currentRoomId = roomId;
-
                 let targetPeerId = `th-p2p-room-${roomId}`;
                 if (this.activeRooms[roomId] && this.activeRooms[roomId].peerId) {
                     targetPeerId = this.activeRooms[roomId].peerId;
                 }
-
                 this.peer = new Peer({
-                    debug: 2, // 开启日志：2打印警告和错误，3打印所有信息
+                    debug: 2,
                     config: {
                         'iceServers': [
                             { urls: 'stun:stun.l.google.com:19302' },
@@ -2443,8 +2207,6 @@
                         ]
                     }
                 });
-
-                // 【修复2：超时防卡死】同样为加入房间增加 8 秒超时检测
                 let connectionTimeout = setTimeout(() => {
                     if (!this.isHost && this.currentRoomId) {
                         document.getElementById("room-error").innerText = "Connection timeout. Host offline or blocked?";
@@ -2453,20 +2215,17 @@
                         this.currentRoomId = null;
                     }
                 }, 15000);
-
                 this.peer.on('open', (id) => {
                     this.hostConnection = this.peer.connect(targetPeerId, {
                         metadata: { uid: this.localUserId },
                         reliable: true
                     });
-
                     this.hostConnection.on('open', () => {
-                        clearTimeout(connectionTimeout); // 连接成功，取消超时
+                        clearTimeout(connectionTimeout);
                         this.disableRoomButtons(false);
                         this.enterGameRoom();
                         this.hostConnection.send({ type: 'JOIN_REQ', uid: this.localUserId, name: localPlayerName });
                     });
-
                     this.hostConnection.on('data', (data) => {
                         if (data.type === 'STATE_UPDATE') {
                             this.gameUI.renderGameState(data.state, this.localUserId);
@@ -2475,13 +2234,11 @@
                             this.leaveRoom();
                         }
                     });
-
                     this.hostConnection.on('close', () => {
                         alert("Host disconnected.");
                         this.leaveRoom();
                     });
                 });
-
                 this.peer.on('error', (err) => {
                     clearTimeout(connectionTimeout);
                     console.error("Join Error:", err);
@@ -2494,10 +2251,8 @@
                     this.leaveRoom();
                 });
             }
-
             handleHumanAction(action) {
                 let amount = action === 'raise' ? parseInt(document.getElementById("raise-slider").value) : 0;
-
                 if (this.isHost) {
                     this.processAndBroadcast(this.localUserId, action, amount);
                 } else {
@@ -2506,14 +2261,11 @@
                     }
                 }
             }
-
             handleGuestData(conn, data) {
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (!state) return;
-
                 if (data.type === 'JOIN_REQ') {
                     if (state.players[data.uid]) {
-                        // 重连
                     } else if (Object.keys(state.players).length >= 10 && state.status === "waiting") {
                         conn.send({ type: 'ERROR', message: t("error_room_full") });
                         return;
@@ -2537,32 +2289,26 @@
                     this.processAndBroadcast(data.uid, data.action, data.amount);
                 }
             }
-
             processAndBroadcast(uid, action, amount) {
                 let state = this.gameUI.lastState;
                 if (!state || state.playerOrder[state.currentPlayerIndex] !== uid) return;
-
                 let nextState = processAction(state, uid, action, amount);
                 this.broadcastState(nextState);
             }
-
             handlePlayerLeave(uid) {
                 if (!this.isHost || !uid) return;
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (!state) return;
-
                 if (state.spectators && state.spectators.some(s => s.uid === uid)) {
                     state.spectators = state.spectators.filter(s => s.uid !== uid);
                     this.broadcastState(state);
                     return;
                 }
-
                 if (state.players[uid]) {
                     const playerName = state.players[uid].name;
                     delete state.players[uid];
                     state.playerOrder = state.playerOrder.filter(id => id !== uid);
                     state.logs.push(createLog("log_leave", { name: playerName }));
-
                     if (state.status === 'playing' && state.playerOrder.length < 2) {
                         state.logs.push(createLog("log_round_end_no_winner"));
                         state = startNewRound(state);
@@ -2570,40 +2316,31 @@
                     this.broadcastState(state);
                 }
             }
-
             startSinglePlayer() {
                 localPlayerName = document.getElementById("player-name-input").value.trim() || "Player";
                 this.localUserId = "player_" + Math.random().toString(36).substr(2, 6);
-
                 this.isHost = true;
                 this.currentRoomId = "LOCAL_VS_AI";
-
                 this.enterGameRoom();
                 this.initGameState();
-
                 for (let i = 0; i < 3; i++) {
                     this.addAI();
                 }
-
                 setTimeout(() => {
                     const btnAddAi = document.getElementById("btn-add-ai");
                     const btnRemoveAi = document.getElementById("btn-remove-ai");
                     if (btnAddAi) btnAddAi.classList.remove("hidden");
                     if (btnRemoveAi) btnRemoveAi.classList.remove("hidden");
-                    // 彻底修复作用域问题
                     this.gameUI.updateWaitingRoomUI(this.gameUI.lastState, this.localUserId);
                 }, 100);
             }
-
             addAI() {
                 if (!this.isHost) return;
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (state.playerOrder.length >= 10 || state.status !== "waiting") return;
-
                 let aiId = "ai_" + Math.random().toString(36).substr(2, 5);
                 let aiNames = ["Alice", "Bob", "Charlie", "Dave", "Eve", "Frank"];
                 let name = "Bot " + aiNames[Math.floor(Math.random() * aiNames.length)];
-
                 state.players[aiId] = {
                     uid: aiId, id: state.playerOrder.length, name: name,
                     chips: state.config?.initialChips || 2000, holeCards: [], folded: false,
@@ -2613,12 +2350,10 @@
                 state.logs.push(createLog("log_join", { name: name }));
                 this.broadcastState(state);
             }
-
             removeAI() {
                 if (!this.isHost) return;
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (state.status !== "waiting") return;
-
                 let aiToRemove = null;
                 for (let i = state.playerOrder.length - 1; i >= 0; i--) {
                     let uid = state.playerOrder[i];
@@ -2627,7 +2362,6 @@
                         break;
                     }
                 }
-
                 if (aiToRemove) {
                     const playerName = state.players[aiToRemove].name;
                     delete state.players[aiToRemove];
@@ -2636,21 +2370,17 @@
                     this.broadcastState(state);
                 }
             }
-
             checkAITurn() {
                 let state = this.gameUI.lastState;
                 if (!state || state.phase === 'waiting' || state.phase === 'showdown' || state.status !== 'playing') {
                     this.aiThinkingUid = null;
                     return;
                 }
-
                 let currentPlayerId = state.playerOrder[state.currentPlayerIndex];
                 let currentPlayer = state.players[currentPlayerId];
-
                 if (currentPlayer && currentPlayer.isAI) {
                     if (this.aiThinkingUid === currentPlayerId) return;
                     this.aiThinkingUid = currentPlayerId;
-
                     AIController.playTurn(state, currentPlayerId, (uid, action, amount) => {
                         this.aiThinkingUid = null;
                         this.processAndBroadcast(uid, action, amount);
@@ -2659,41 +2389,33 @@
                     this.aiThinkingUid = null;
                 }
             }
-
             startGame() {
                 if (!this.isHost || !this.gameUI.lastState) return;
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (state.status !== "waiting" || state.playerOrder.length < 2) return;
-
                 const chipsInput = document.getElementById("setting-initial-chips");
                 const blindInput = document.getElementById("setting-big-blind");
                 let newInitChips = chipsInput ? parseInt(chipsInput.value) : 2000;
                 let newBigBlind = blindInput ? parseInt(blindInput.value) : 20;
-
                 state.config = {
                     initialChips: Math.floor(newInitChips),
                     bigBlind: Math.floor(newBigBlind),
                     smallBlind: Math.floor(newBigBlind / 2)
                 };
-
                 Object.keys(state.players).forEach(uid => {
                     state.players[uid].chips = state.config.initialChips;
                     state.players[uid].currentBet = 0;
                 });
-
                 for (let i = state.playerOrder.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [state.playerOrder[i], state.playerOrder[j]] = [state.playerOrder[j], state.playerOrder[i]];
                 }
-
                 state.status = "playing";
                 let nextState = startNewRound(state);
                 this.broadcastState(nextState);
             }
-
             runHostTimerController(state) {
                 if (!this.isHost) return;
-
                 if (state.nextPhaseTimer > 0) {
                     if (!this.nextPhaseTimeout) {
                         this.nextPhaseTimeout = setTimeout(() => {
@@ -2709,7 +2431,6 @@
                 } else {
                     if (this.nextPhaseTimeout) { clearTimeout(this.nextPhaseTimeout); this.nextPhaseTimeout = null; }
                 }
-
                 if (state.phase === "showdown") {
                     if (state.nextRoundTimer > 0 && !this.nextRoundTimeout) {
                         this.nextRoundTimeout = setTimeout(() => {
@@ -2723,12 +2444,10 @@
                     }
                 }
             }
-
             leaveRoom() {
                 if (this.broadcastInterval) clearInterval(this.broadcastInterval);
                 if (this.nextPhaseTimeout) clearTimeout(this.nextPhaseTimeout);
                 if (this.nextRoundTimeout) clearTimeout(this.nextRoundTimeout);
-
                 if (this.isHost && this.currentRoomId !== "LOCAL_VS_AI" && this.mqttClient) {
                     this.mqttClient.publish('texas-holdem-p2p-rooms-v1', JSON.stringify({
                         id: this.currentRoomId,
@@ -2737,29 +2456,23 @@
                 } else if (!this.isHost && this.hostConnection) {
                     this.hostConnection.close();
                 }
-
                 if (this.peer) {
                     this.peer.destroy();
                     this.peer = null;
                 }
-
                 this.currentRoomId = null;
                 this.isHost = false;
                 this.connections = [];
                 this.hostConnection = null;
-
                 this.gameUI.bankruptcyScreenShown = false;
                 document.getElementById("game-area").classList.add("hidden");
                 document.getElementById("room-screen").classList.remove("hidden");
-
                 const btnAddAi = document.getElementById("btn-add-ai");
                 const btnRemoveAi = document.getElementById("btn-remove-ai");
                 if (btnAddAi) btnAddAi.classList.add("hidden");
                 if (btnRemoveAi) btnRemoveAi.classList.add("hidden");
-
                 this.startRoomAutoRefresh();
             }
-
             disableRoomButtons(disabled) {
                 const btns = ["btn-join-room", "btn-create-room", "btn-single-player"];
                 btns.forEach(id => {
@@ -2772,13 +2485,11 @@
                 });
             }
         }
-
         class SoundManager {
             constructor() {
                 this.ctx = null;
                 this.enabled = false;
             }
-
             init() {
                 if (!this.ctx) {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2795,82 +2506,64 @@
                     this.ctx.resume();
                 }
             }
-
             playTone(freq, type, duration, vol = 0.1, when = 0) {
                 if (!this.enabled) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-
                 osc.type = type;
                 osc.frequency.setValueAtTime(freq, this.ctx.currentTime + when);
-
                 gain.gain.setValueAtTime(vol, this.ctx.currentTime + when);
                 gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + when + duration);
-
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
-
                 osc.start(this.ctx.currentTime + when);
                 osc.stop(this.ctx.currentTime + when + duration);
             }
-
             playChip() {
                 this.playTone(2000, "square", 0.05, 0.03);
             }
-
             playCard() {
                 this.playTone(800, "sine", 0.1, 0.02);
             }
-
             playCheck() {
                 this.playTone(300, "sine", 0.05, 0.1);
                 this.playTone(300, "sine", 0.05, 0.1, 0.1);
             }
-
             playFold() {
                 this.playTone(150, "triangle", 0.3, 0.1);
             }
-
             playAllIn() {
                 if (!this.enabled) return;
                 const t = this.ctx.currentTime;
                 this.playTone(100, "sawtooth", 0.4, 0.4, 0);
                 this.playTone(50, "square", 1.0, 0.5, 0.1);
-
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = "triangle";
                 osc.frequency.setValueAtTime(800, t);
                 osc.frequency.exponentialRampToValueAtTime(100, t + 0.3);
-
                 gain.gain.setValueAtTime(0.1, t);
                 gain.gain.linearRampToValueAtTime(0, t + 0.3);
-
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
                 osc.stop(t + 0.3);
             }
-
             playRaise() {
                 this.playTone(1500, "square", 0.08, 0.04);
                 this.playTone(1000, "square", 0.08, 0.04, 0.05);
             }
-
             playHandEnd() {
                 this.playTone(440, "sine", 0.2, 0.1);
             }
-
             playWin() {
                 [523, 659, 784, 1046].forEach((f, i) => this.playTone(f, "triangle", 0.4, 0.15, i * 0.15));
             }
-
             playLose() {
                 this.playTone(100, "sawtooth", 1.0, 0.2);
                 this.playTone(80, "sawtooth", 1.0, 0.2, 0.3);
             }
         }
-
         class OcclusionManager {
             constructor() {
                 this.communityArea = document.getElementById("community-area");
@@ -2878,37 +2571,30 @@
                 this.isRunning = false;
                 this.checkLoop = null;
             }
-
             start() {
                 if (this.isRunning) return;
                 this.isRunning = true;
                 this.checkLoop = setInterval(() => this.check(), 100);
             }
-
             stop() {
                 this.isRunning = false;
                 clearInterval(this.checkLoop);
             }
-
             getOverlapRatio(r1, r2) {
                 if (!r1 || !r2) return 0;
                 const overlapLeft = Math.max(r1.left, r2.left);
                 const overlapRight = Math.min(r1.right, r2.right);
                 const overlapTop = Math.max(r1.top, r2.top);
                 const overlapBottom = Math.min(r1.bottom, r2.bottom);
-
                 if (overlapLeft >= overlapRight || overlapTop >= overlapBottom) return 0;
-
                 const overlapArea = (overlapRight - overlapLeft) * (overlapBottom - overlapTop);
                 const area1 = r1.width * r1.height;
                 const area2 = r2.width * r2.height;
                 return overlapArea / Math.min(area1, area2);
             }
-
             check() {
                 const seats = document.querySelectorAll(".player-seat");
                 if (seats.length === 0) return;
-
                 const cardTargets = [];
                 seats.forEach((seat) => {
                     const cardsDiv = seat.querySelector('div[id^="cards-"]');
@@ -2916,7 +2602,6 @@
                         cardTargets.push(cardsDiv.getBoundingClientRect());
                     }
                 });
-
                 const commRect = this.communityArea.getBoundingClientRect();
                 if (commRect.width > 10 && commRect.height > 10) {
                     let commObstructed = false;
@@ -2940,7 +2625,6 @@
                 } else {
                     this.applyTransparency(this.communityArea, false);
                 }
-
                 if (this.gameMessage && this.gameMessage.style.opacity !== "0") {
                     let msgObstructed = false;
                     const msgRect = this.gameMessage.getBoundingClientRect();
@@ -2958,7 +2642,6 @@
                     this.applyTransparency(this.gameMessage, msgObstructed);
                 }
             }
-
             applyTransparency(el, shouldBeTransparent) {
                 if (shouldBeTransparent) {
                     if (!el.classList.contains("smart-transparent")) el.classList.add("smart-transparent");
@@ -2967,7 +2650,6 @@
                 }
             }
         }
-
         class TableDragSystem {
             constructor() {
                 this.container = document.getElementById("table-area");
@@ -2978,45 +2660,36 @@
                 this.initialDragY = 0;
                 this.init();
             }
-
             init() {
                 this.container.addEventListener("mousedown", this.onStart.bind(this));
                 window.addEventListener("mousemove", this.onMove.bind(this));
                 window.addEventListener("mouseup", this.onEnd.bind(this));
-
                 this.container.addEventListener("touchstart", this.onStart.bind(this), { passive: false });
                 window.addEventListener("touchmove", this.onMove.bind(this), { passive: false });
                 window.addEventListener("touchend", this.onEnd.bind(this));
-
                 this.updateTransform();
             }
-
             onStart(e) {
                 if (e.target.closest("button") || e.target.closest("input")) return;
                 this.isDragging = true;
                 this.startY = this.getY(e);
                 this.initialDragY = this.currentY;
-
                 this.table.classList.remove("duration-500");
                 this.table.classList.add("duration-0");
                 this.container.classList.add("cursor-grabbing");
                 this.container.classList.remove("cursor-grab");
             }
-
             onMove(e) {
                 if (!this.isDragging) return;
                 e.preventDefault();
                 const y = this.getY(e);
                 const diff = y - this.startY;
                 this.currentY = this.initialDragY + diff;
-
                 if (this.currentY > 180) this.currentY = 180;
                 if (this.currentY < -120) this.currentY = -120;
-
                 this.updateTransform();
                 if (window.occlusionManager) window.occlusionManager.check();
             }
-
             onEnd() {
                 if (!this.isDragging) return;
                 this.isDragging = false;
@@ -3025,32 +2698,26 @@
                 this.container.classList.remove("cursor-grabbing");
                 this.container.classList.add("cursor-grab");
             }
-
             getY(e) {
                 return e.touches ? e.touches[0].clientY : e.clientY;
             }
-
             updateTransform() {
                 this.table.style.transform = `translateY(${this.currentY}px)`;
             }
         }
-
         class HandEvaluator {
             static evaluate(holeCards, communityCards) {
                 if (!holeCards || holeCards.length === 0) {
                     return { score: 0, name: "hand_high_card", bestCards: [] };
                 }
-
                 const all = [
                     ...holeCards.map((c) => ({ ...c, isHole: true })),
                     ...communityCards.map((c) => ({ ...c, isHole: false }))
                 ];
-
                 all.sort((a, b) => {
                     if (b.value !== a.value) return b.value - a.value;
                     return b.isHole - a.isHole;
                 });
-
                 const getKickers = (excludeCards, count) => {
                     const kickers = [];
                     const excludeIds = new Set(excludeCards.map((c) => c.id));
@@ -3062,20 +2729,17 @@
                     }
                     return kickers;
                 };
-
                 const calcScore = (rankVal, mainCards, kickers) => {
                     let s = rankVal * Math.pow(100, 5);
                     mainCards.forEach((c, i) => { s += c.value * Math.pow(100, 4 - i); });
                     kickers.forEach((c, i) => { s += c.value * Math.pow(100, 4 - mainCards.length - i); });
                     return s;
                 };
-
                 const suits = {};
                 all.forEach((c) => {
                     if (!suits[c.suit]) suits[c.suit] = [];
                     suits[c.suit].push(c);
                 });
-
                 let flushCards = null;
                 for (let s in suits) {
                     if (suits[s].length >= 5) {
@@ -3083,15 +2747,12 @@
                         break;
                     }
                 }
-
                 const getStraightCards = (cardsToCheck) => {
                     const uniqueVals = [...new Set(cardsToCheck.map((c) => c.value))].sort((a, b) => b - a);
-
                     if (uniqueVals.includes(14) && uniqueVals.includes(5) && uniqueVals.includes(4) && uniqueVals.includes(3) && uniqueVals.includes(2)) {
                         const straightVals = [5, 4, 3, 2, 14];
                         const best5 = [];
                         const usedIds = new Set();
-
                         straightVals.forEach((v) => {
                             const card = cardsToCheck.find((c) => c.value === v && !usedIds.has(c.id));
                             if (card) {
@@ -3101,13 +2762,11 @@
                         });
                         if (best5.length === 5) return { cards: best5, high: 5 };
                     }
-
                     for (let i = 0; i <= uniqueVals.length - 5; i++) {
                         if (uniqueVals[i] - uniqueVals[i + 4] === 4) {
                             const straightVals = uniqueVals.slice(i, i + 5);
                             const best5 = [];
                             const usedIds = new Set();
-
                             straightVals.forEach((v) => {
                                 const card = cardsToCheck.find((c) => c.value === v && !usedIds.has(c.id));
                                 if (card) {
@@ -3120,7 +2779,6 @@
                     }
                     return null;
                 };
-
                 if (flushCards) {
                     const sf = getStraightCards(flushCards);
                     if (sf) {
@@ -3131,14 +2789,11 @@
                         };
                     }
                 }
-
                 const counts = {};
                 all.forEach((c) => (counts[c.value] = (counts[c.value] || 0) + 1));
-
                 const fours = Object.keys(counts).filter((v) => counts[v] === 4).map(Number).sort((a, b) => b - a);
                 const threes = Object.keys(counts).filter((v) => counts[v] === 3).map(Number).sort((a, b) => b - a);
                 const pairs = Object.keys(counts).filter((v) => counts[v] === 2).map(Number).sort((a, b) => b - a);
-
                 if (fours.length > 0) {
                     const fourVal = fours[0];
                     const quadCards = all.filter((c) => c.value === fourVal);
@@ -3149,7 +2804,6 @@
                         bestCards: [...quadCards, ...kicker]
                     };
                 }
-
                 if (threes.length > 0 && (threes.length > 1 || pairs.length > 0)) {
                     const threeVal = threes[0];
                     const pairVal = threes.length > 1 ? threes[1] : pairs[0];
@@ -3161,7 +2815,6 @@
                         bestCards: [...threeCards, ...pairCards]
                     };
                 }
-
                 if (flushCards) {
                     return {
                         score: calcScore(6, flushCards, []),
@@ -3169,7 +2822,6 @@
                         bestCards: flushCards
                     };
                 }
-
                 const straight = getStraightCards(all);
                 if (straight) {
                     return {
@@ -3178,7 +2830,6 @@
                         bestCards: straight.cards
                     };
                 }
-
                 if (threes.length > 0) {
                     const threeVal = threes[0];
                     const threeCards = all.filter((c) => c.value === threeVal).slice(0, 3);
@@ -3189,7 +2840,6 @@
                         bestCards: [...threeCards, ...kickers]
                     };
                 }
-
                 if (pairs.length >= 2) {
                     const p1 = pairs[0];
                     const p2 = pairs[1];
@@ -3202,7 +2852,6 @@
                         bestCards: [...pair1Cards, ...pair2Cards, ...kicker]
                     };
                 }
-
                 if (pairs.length === 1) {
                     const p1 = pairs[0];
                     const pairCards = all.filter((c) => c.value === p1).slice(0, 2);
@@ -3213,7 +2862,6 @@
                         bestCards: [...pairCards, ...kickers]
                     };
                 }
-
                 const highCards = all.slice(0, 5);
                 return {
                     score: calcScore(1, highCards, []),
@@ -3222,7 +2870,6 @@
                 };
             }
         }
-
         const gameUI = new GameUIManager();
         const network = new NetworkManager(gameUI);
         window.network = network;
