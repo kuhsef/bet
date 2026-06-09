@@ -9,8 +9,8 @@
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>♠️</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Supabase JS SDK -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://unpkg.com/mqtt@5.0.5/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt@5.0.5/dist/mqtt.min.js"></script>
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Black+Ops+One&family=Noto+Sans+JP:wght@500;700&family=Noto+Sans+SC:wght@500;700&display=swap");
 
@@ -2094,12 +2094,20 @@
             }
 
             init() {
-                // 【核心修复】改为 sessionStorage，彻底解决自己不在中间的问题
-                let storedId = sessionStorage.getItem("poker_user_id");
-                if (!storedId) {
+                // 【修复1：防崩溃保护】防止浏览器隐私设置强行拦截 sessionStorage 导致整个游戏白屏卡死
+                let storedId = null;
+                try {
+                    storedId = sessionStorage.getItem("poker_user_id");
+                    if (!storedId) {
+                        storedId = "user_" + Math.random().toString(36).substr(2, 9);
+                        sessionStorage.setItem("poker_user_id", storedId);
+                    }
+                } catch (e) {
+                    // 如果被浏览器安全策略拦截，降级为纯内存变量
+                    console.warn("SessionStorage access denied by browser, using temporary ID.");
                     storedId = "user_" + Math.random().toString(36).substr(2, 9);
-                    sessionStorage.setItem("poker_user_id", storedId);
                 }
+
                 this.localUserId = storedId;
                 localUserId = storedId;
 
@@ -2225,17 +2233,27 @@
                 this.isHost = true;
                 this.currentRoomId = roomId;
 
-                // 【核心修复】：固定 PeerID，确保就算 MQTT 服务器卡顿，客机也能直接硬连入你的房间！
                 const hostPeerId = `th-p2p-room-${roomId}`;
                 this.peer = new Peer(hostPeerId);
 
+                // 【修复2：超时防卡死】如果校园网/公司网屏蔽了连接，8秒后强制解开按钮，避免永远灰显
+                let connectionTimeout = setTimeout(() => {
+                    if (this.isHost && this.currentRoomId) {
+                        document.getElementById("room-error").innerText = "Connection timeout. Firewall blocking P2P?";
+                        this.disableRoomButtons(false);
+                        if (this.peer) this.peer.destroy();
+                        this.isHost = false;
+                        this.currentRoomId = null;
+                    }
+                }, 8000);
+
                 this.peer.on('open', (id) => {
+                    clearTimeout(connectionTimeout); // 连接成功，取消超时报警
                     this.disableRoomButtons(false);
-                    // 【核心修复】：必须先进入房间（显示DOM），再初始化游戏，彻底解决坐标乱跑到左上角的问题
+
                     this.enterGameRoom();
                     this.initGameState();
 
-                    // 【核心修复】：不再等 5 秒，创建成功后立即向全网广播房间！
                     const broadcastRoom = () => {
                         if (this.isHost && this.mqttClient && this.mqttClient.connected && this.gameUI.lastState) {
                             this.mqttClient.publish('texas-holdem-p2p-rooms-v1', JSON.stringify({
@@ -2261,6 +2279,7 @@
                 });
 
                 this.peer.on('error', (err) => {
+                    clearTimeout(connectionTimeout);
                     console.error("Peer Error:", err);
                     if (err.type === 'unavailable-id') {
                         document.getElementById("room-error").innerText = "Room ID is occupied. Try another one.";
@@ -2345,13 +2364,22 @@
                 this.isHost = false;
                 this.currentRoomId = roomId;
 
-                // 【核心修复：强行直连模式】：就算列表没刷出来，只要房间号对了，直接硬接！
                 let targetPeerId = `th-p2p-room-${roomId}`;
                 if (this.activeRooms[roomId] && this.activeRooms[roomId].peerId) {
                     targetPeerId = this.activeRooms[roomId].peerId;
                 }
 
                 this.peer = new Peer();
+
+                // 【修复2：超时防卡死】同样为加入房间增加 8 秒超时检测
+                let connectionTimeout = setTimeout(() => {
+                    if (!this.isHost && this.currentRoomId) {
+                        document.getElementById("room-error").innerText = "Connection timeout. Host offline or blocked?";
+                        this.disableRoomButtons(false);
+                        if (this.peer) this.peer.destroy();
+                        this.currentRoomId = null;
+                    }
+                }, 8000);
 
                 this.peer.on('open', (id) => {
                     this.hostConnection = this.peer.connect(targetPeerId, {
@@ -2360,6 +2388,7 @@
                     });
 
                     this.hostConnection.on('open', () => {
+                        clearTimeout(connectionTimeout); // 连接成功，取消超时
                         this.disableRoomButtons(false);
                         this.enterGameRoom();
                         this.hostConnection.send({ type: 'JOIN_REQ', uid: this.localUserId, name: localPlayerName });
@@ -2381,6 +2410,7 @@
                 });
 
                 this.peer.on('error', (err) => {
+                    clearTimeout(connectionTimeout);
                     console.error("Join Error:", err);
                     if (err.type === 'peer-unavailable') {
                         document.getElementById("room-error").innerText = "Room does not exist / Host offline.";
