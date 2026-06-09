@@ -993,10 +993,10 @@
                 let raiseAmount = amount - player.currentBet;
                 let actualAmount = amount;
 
-                if (actualAmount <= newState.currentMaxBet && actualAmount < player.chips) return currentState;
+                if (actualAmount <= newState.currentMaxBet && raiseAmount < player.chips) return currentState;
                 const extraRaise = actualAmount - newState.currentMaxBet;
 
-                if (extraRaise < newState.lastRaiseAmount && actualAmount < player.chips) return currentState;
+                if (extraRaise < newState.lastRaiseAmount && raiseAmount < player.chips) return currentState;
 
                 let isAllIn = raiseAmount >= player.chips;
                 if (isAllIn) {
@@ -1924,9 +1924,8 @@
                     else btnCall.innerText = `${t("callBtn")} $${diff}`;
                 }
 
-                const minRaiseAmount = state.lastRaiseAmount;
-                const minPossibleActionRaise = diff + minRaiseAmount;
-                const maxPossibleActionRaise = localPlayer.chips;
+                const minPossibleActionRaise = state.currentMaxBet + state.lastRaiseAmount;
+                const maxPossibleActionRaise = localPlayer.chips + localPlayer.currentBet;
 
                 if (localPlayer.chips <= diff) {
                     btnRaise.classList.add("hidden");
