@@ -2885,18 +2885,16 @@
         async function startApp() {
             document.body.insertAdjacentHTML('afterbegin', '<div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#172554;z-index:9999;display:flex;justify-content:center;align-items:center;color:white;font-size:20px;">Loading...</div>');
             try {
-                const langPromise = fetch('https://ipapi.co/json/').then(r => r.json()).catch(() => ({ country_code: 'EN' }));
+                const langPromise = fetch('https://api.db-ip.com/v2/free/self').then(r => r.json()).catch(() => ({ countryCode: 'EN' }));
                 network.init();
                 const data = await langPromise;
-                const country = data.country_code;
+                const country = data.countryCode;
                 let targetLang = 'en';
                 if (country === 'JP') targetLang = 'ja';
                 else if (country === 'CN') targetLang = 'zh';
                 updateLanguage(targetLang);
                 const selectBox = document.getElementById('lang-select');
-                if (selectBox) {
-                    selectBox.value = targetLang;
-                }
+                if (selectBox) selectBox.value = targetLang;
             } catch (e) {
                 updateLanguage('en');
             } finally {
@@ -2904,6 +2902,7 @@
                 if (loadingDiv) loadingDiv.remove();
             }
         }
+        window.addEventListener('DOMContentLoaded', startApp);
         window.addEventListener('DOMContentLoaded', startApp);
     </script>
 </body>
