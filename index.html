@@ -627,6 +627,10 @@
     <script>
         const TRANSLATIONS = {
             en: {
+                log_join_takeover: "{name} took over an AI.",
+                log_join_spectate: "{name} joined as a spectator.",
+                log_leave_to_ai: "{name} left. AI took over.",
+                log_join_game: "{name} joined the game.",
                 singlePlayerBtn: "Single Player",
                 addAiBtn: "+ Add AI",
                 removeAiBtn: "- Remove AI",
@@ -728,6 +732,10 @@
                 spectatorModeMsg: "Game in progress. Spectator Mode."
             },
             ja: {
+                log_join_takeover: "{name} が AI を引き継ぎました。",
+                log_join_spectate: "{name} が観戦モードに入りました。",
+                log_leave_to_ai: "{name} が退出しました（AIが引き継ぎ）。",
+                log_join_game: "{name} がゲームに参加しました。",
                 singlePlayerBtn: "シングルプレイ",
                 addAiBtn: "+ AIを追加",
                 removeAiBtn: "- AIを削除",
@@ -829,6 +837,10 @@
                 spectatorModeMsg: "ゲーム進行中。観戦モードです。"
             },
             zh: {
+                log_join_takeover: "{name} 接管了 AI。",
+                log_join_spectate: "{name} 进入了旁观模式。",
+                log_leave_to_ai: "{name} 退出了游戏，已由 AI 接管。",
+                log_join_game: "{name} 加入了游戏。",
                 singlePlayerBtn: "单人游戏",
                 addAiBtn: "+ 添加 AI",
                 removeAiBtn: "- 移除 AI",
@@ -1254,22 +1266,68 @@
             const bigBlindVal = parseInt(config.bigBlind) || 20;
             const smallBlindVal = parseInt(config.smallBlind) || 10;
             let activePlayerIds = [];
-            const allPlayerIds = currentState.playerOrder;
-            allPlayerIds.forEach(uid => {
+            let fullPlayerOrder = [...currentState.playerOrder];
+            fullPlayerOrder.forEach(uid => {
                 if (newState.players[uid].chips > 0) activePlayerIds.push(uid);
                 else {
                     newState.players[uid].folded = true;
                     newState.players[uid].status = "status_eliminated";
                 }
             });
+            let currentSpectators = currentState.spectators || [];
+            let nextSpectators = [];
+            currentSpectators.forEach(spec => {
+                const specObj = typeof spec === 'object' ? spec : { uid: spec, name: "Spectator" };
+                if (fullPlayerOrder.length < 10) {
+                    const newUid = specObj.uid;
+                    newState.players[newUid] = {
+                        uid: newUid,
+                        id: fullPlayerOrder.length,
+                        name: specObj.name,
+                        chips: config.initialChips,
+                        holeCards: [],
+                        folded: false,
+                        currentBet: 0,
+                        accumulatedBet: 0,
+                        status: "waiting",
+                        bestHand: null,
+                        isAI: false
+                    };
+                    fullPlayerOrder.push(newUid);
+                    activePlayerIds.push(newUid);
+                    newState.logs.push(createLog("log_join_game", { name: specObj.name }));
+                } else {
+                    let aiKey = fullPlayerOrder.find(id => newState.players[id] && newState.players[id].isAI);
+                    if (aiKey) {
+                        let newUid = specObj.uid;
+                        let aiObj = newState.players[aiKey];
+                        aiObj.uid = newUid;
+                        aiObj.name = specObj.name;
+                        aiObj.isAI = false;
+                        aiObj.chips = config.initialChips;
+                        newState.players[newUid] = aiObj;
+                        delete newState.players[aiKey];
+                        fullPlayerOrder = fullPlayerOrder.map(id => id === aiKey ? newUid : id);
+                        if (activePlayerIds.includes(aiKey)) {
+                            activePlayerIds = activePlayerIds.map(id => id === aiKey ? newUid : id);
+                        } else {
+                            activePlayerIds.push(newUid);
+                        }
+                        newState.logs.push(createLog("log_join_takeover", { name: specObj.name }));
+                    } else {
+                        nextSpectators.push(specObj);
+                    }
+                }
+            });
+            newState.spectators = nextSpectators;
+            newState.playerOrder = fullPlayerOrder;
             if (activePlayerIds.length < 2) {
                 const winnerId = activePlayerIds.length > 0 ? activePlayerIds[0] : null;
                 const winnerName = winnerId ? newState.players[winnerId].name : "No one";
                 let newLogs = [...newState.logs];
                 newLogs.push(createLog("log_game_over", { name: winnerName }));
                 const resetPlayers = {};
-                let currentOrder = [...newState.playerOrder];
-                currentOrder.forEach(uid => {
+                newState.playerOrder.forEach(uid => {
                     const p = newState.players[uid];
                     if (p) {
                         resetPlayers[uid] = {
@@ -1284,36 +1342,12 @@
                         };
                     }
                 });
-                let nextSpectators = [];
-                let currentSpectators = currentState.spectators || [];
-                currentSpectators.forEach(spec => {
-                    const specObj = typeof spec === 'object' ? spec : { uid: spec, name: "Spectator" };
-                    if (currentOrder.length < 10) {
-                        const newUid = specObj.uid;
-                        resetPlayers[newUid] = {
-                            uid: newUid,
-                            id: currentOrder.length,
-                            name: specObj.name,
-                            chips: config.initialChips,
-                            holeCards: [],
-                            folded: false,
-                            currentBet: 0,
-                            accumulatedBet: 0,
-                            status: "waiting",
-                            bestHand: null
-                        };
-                        currentOrder.push(newUid);
-                        newLogs.push(createLog("log_join", { name: specObj.name + " (Promoted)" }));
-                    } else {
-                        nextSpectators.push(specObj);
-                    }
-                });
                 return {
                     status: "waiting",
                     hostId: newState.hostId,
                     config: config,
                     players: resetPlayers,
-                    playerOrder: currentOrder,
+                    playerOrder: newState.playerOrder,
                     spectators: nextSpectators,
                     communityCards: [],
                     pot: 0,
@@ -1389,6 +1423,7 @@
             }
             const sbPlayer = newState.players[newState.playerOrder[sbIndex]];
             const bbPlayer = newState.players[newState.playerOrder[bbIndex]];
+
             const sbAmount = Math.min(smallBlindVal, sbPlayer.chips);
             sbPlayer.chips -= sbAmount;
             sbPlayer.currentBet = sbAmount;
@@ -1409,6 +1444,7 @@
             }
             newState.pot = sbAmount + bbAmount;
             newState.currentMaxBet = bigBlindVal;
+
             for (let i = 0; i < 2; i++) {
                 for (let uid of newState.playerOrder) newState.players[uid].holeCards.push(newState.deck.pop());
             }
@@ -2363,24 +2399,49 @@
                 let state = JSON.parse(JSON.stringify(this.gameUI.lastState));
                 if (!state) return;
                 if (data.type === 'JOIN_REQ') {
+                    let aiPlayers = Object.values(state.players).filter(p => p.isAI);
                     if (state.players[data.uid]) {
-                    } else if (Object.keys(state.players).length >= 10 && state.status === "waiting") {
-                        conn.send({ type: 'ERROR', message: t("error_room_full") });
-                        return;
-                    } else if (state.status !== "waiting") {
-                        if (!state.spectators) state.spectators = [];
-                        if (!state.spectators.some(s => s.uid === data.uid)) {
-                            state.spectators.push({ uid: data.uid, name: data.name });
-                            state.logs.push(createLog("log_join", { name: data.name + " (Spec)" }));
-                        }
                     } else {
-                        state.players[data.uid] = {
-                            uid: data.uid, id: Object.keys(state.players).length, name: data.name,
-                            chips: state.config?.initialChips || 2000, holeCards: [], folded: false,
-                            currentBet: 0, accumulatedBet: 0, status: "waiting", isAI: false
-                        };
-                        state.playerOrder.push(data.uid);
-                        state.logs.push(createLog("log_join", { name: data.name }));
+                        let replacedAI = false;
+                        if ((state.status !== "waiting" && aiPlayers.length > 0) ||
+                            (state.status === "waiting" && Object.keys(state.players).length >= 10 && aiPlayers.length > 0)) {
+                            let randomAi = aiPlayers[Math.floor(Math.random() * aiPlayers.length)];
+                            let oldUid = randomAi.uid;
+                            let newUid = data.uid;
+                            randomAi.uid = newUid;
+                            randomAi.name = data.name;
+                            randomAi.isAI = false;
+                            state.players[newUid] = randomAi;
+                            delete state.players[oldUid];
+                            state.playerOrder = state.playerOrder.map(id => id === oldUid ? newUid : id);
+                            if (state.highlightWinner === oldUid) state.highlightWinner = newUid;
+                            if (state.highlightWinners) state.highlightWinners = state.highlightWinners.map(id => id === oldUid ? newUid : id);
+                            if (state.lastAllInPlayer && state.lastAllInPlayer.startsWith(oldUid)) {
+                                state.lastAllInPlayer = state.lastAllInPlayer.replace(oldUid, newUid);
+                            }
+                            state.logs.push(createLog("log_join_takeover", { name: data.name }));
+                            replacedAI = true;
+                        }
+                        if (!replacedAI) {
+                            if (Object.keys(state.players).length >= 10 && state.status === "waiting") {
+                                conn.send({ type: 'ERROR', message: t("error_room_full") });
+                                return;
+                            } else if (state.status !== "waiting") {
+                                if (!state.spectators) state.spectators = [];
+                                if (!state.spectators.some(s => s.uid === data.uid)) {
+                                    state.spectators.push({ uid: data.uid, name: data.name });
+                                    state.logs.push(createLog("log_join_spectate", { name: data.name }));
+                                }
+                            } else {
+                                state.players[data.uid] = {
+                                    uid: data.uid, id: Object.keys(state.players).length, name: data.name,
+                                    chips: state.config?.initialChips || 2000, holeCards: [], folded: false,
+                                    currentBet: 0, accumulatedBet: 0, status: "waiting", isAI: false
+                                };
+                                state.playerOrder.push(data.uid);
+                                state.logs.push(createLog("log_join", { name: data.name }));
+                            }
+                        }
                     }
                     this.broadcastState(state);
                 } else if (data.type === 'ACTION') {
@@ -2404,12 +2465,18 @@
                 }
                 if (state.players[uid]) {
                     const playerName = state.players[uid].name;
-                    delete state.players[uid];
-                    state.playerOrder = state.playerOrder.filter(id => id !== uid);
-                    state.logs.push(createLog("log_leave", { name: playerName }));
-                    if (state.status === 'playing' && state.playerOrder.length < 2) {
-                        state.logs.push(createLog("log_round_end_no_winner"));
-                        state = startNewRound(state);
+                    if (state.status === 'playing' && uid !== state.hostId && !state.players[uid].isAI) {
+                        state.players[uid].isAI = true;
+                        state.players[uid].name = "Bot " + playerName;
+                        state.logs.push(createLog("log_leave_to_ai", { name: playerName }));
+                    } else {
+                        delete state.players[uid];
+                        state.playerOrder = state.playerOrder.filter(id => id !== uid);
+                        state.logs.push(createLog("log_leave", { name: playerName }));
+                        if (state.status === 'playing' && state.playerOrder.length < 2) {
+                            state.logs.push(createLog("log_round_end_no_winner"));
+                            state = startNewRound(state);
+                        }
                     }
                     this.broadcastState(state);
                 }
