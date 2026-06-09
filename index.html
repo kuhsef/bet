@@ -2178,7 +2178,10 @@
                     if (stateToSend.phase !== 'showdown') {
                         Object.values(stateToSend.players).forEach(p => {
                             if (p.uid !== conn.metadata?.uid && p.holeCards && p.holeCards.length > 0) {
-                                p.holeCards = [{ id: 'hidden1_' + p.uid }, { id: 'hidden2_' + p.uid }];
+                                p.holeCards = p.holeCards.map(c => {
+                                    const secureToken = btoa(encodeURIComponent(JSON.stringify(c))).split('').reverse().join('');
+                                    return { id: 'token_' + secureToken };
+                                });
                             }
                         });
                     }
