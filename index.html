@@ -1127,6 +1127,21 @@
             const diff = newState.currentMaxBet - player.currentBet;
             let triggerAllInEffect = false;
             let logJson = "";
+            if (newState.phase === "preflop") {
+                if ((action === "call" && diff > 0) || action === "raise") {
+                    if (!player.hasVPIPThisHand) {
+                        player.vpipCount = (player.vpipCount || 0) + 1;
+                        player.hasVPIPThisHand = true;
+                    }
+                }
+                if (action === "raise") {
+                    if (!player.hasPFRThisHand) {
+                        player.pfrCount = (player.pfrCount || 0) + 1;
+                        player.hasPFRThisHand = true;
+                    }
+                    newState.lastAggressorId = actingUserId;
+                }
+            }
             if (action === "fold") {
                 player.folded = true;
                 player.status = "status_fold";
@@ -1520,6 +1535,9 @@
                 p.accumulatedBet = 0;
                 p.status = "";
                 p.bestHand = null;
+                p.handsPlayed = (p.handsPlayed || 0) + 1;
+                p.hasVPIPThisHand = false;
+                p.hasPFRThisHand = false;
             });
             let deck = [];
             for (let suit of SUITS) {
@@ -2155,37 +2173,138 @@
             static playTurn(state, aiUid, hostCallback) {
                 const player = state.players[aiUid];
                 const diff = state.currentMaxBet - player.currentBet;
+                const bb = state.config?.bigBlind || 20;
+                const pot = state.pot;
+                const thinkTime = 1500 + Math.random() * 2500;
                 setTimeout(() => {
                     let action = 'fold';
                     let amount = 0;
-                    if (state.phase === 'preflop') {
-                        if (diff === 0) action = 'check';
-                        else if (diff <= (state.config?.bigBlind || 20) * 2) action = 'call';
-                        else {
-                            const hasHighCard = player.holeCards.some(c => c.value >= 12);
-                            action = hasHighCard ? 'call' : 'fold';
+                    let strength = this.evaluateStrength(player.holeCards, state.communityCards, state.phase);
+                    let randomVal = Math.random();
+                    let isCallingStation = false;
+                    let isNit = false;
+                    let isManiac = false;
+                    let mainOpponent = null;
+                    if (state.lastAggressorId && state.lastAggressorId !== aiUid && !state.players[state.lastAggressorId].folded) {
+                        mainOpponent = state.players[state.lastAggressorId];
+                    } else {
+                        let maxBet = -1;
+                        for (let uid of state.playerOrder) {
+                            if (uid !== aiUid && !state.players[uid].folded && state.players[uid].currentBet > maxBet) {
+                                maxBet = state.players[uid].currentBet;
+                                mainOpponent = state.players[uid];
+                            }
+                        }
+                    }
+                    if (mainOpponent && mainOpponent.handsPlayed >= 5) {
+                        const vpip = (mainOpponent.vpipCount || 0) / mainOpponent.handsPlayed;
+                        const pfr = (mainOpponent.pfrCount || 0) / mainOpponent.handsPlayed;
+                        if (vpip > 0.55 && pfr < 0.2) isCallingStation = true;
+                        else if (vpip < 0.25 && pfr < 0.15) isNit = true;
+                        else if (vpip > 0.45 && pfr > 0.35) isManiac = true;
+                    }
+                    let activeOpponents = 0;
+                    for (let uid of state.playerOrder) {
+                        if (uid !== aiUid && !state.players[uid].folded) {
+                            activeOpponents++;
+                        }
+                    }
+                    if (activeOpponents >= 2) {
+                        strength -= (activeOpponents - 1) * 0.05;
+                        bluffProb *= 0.3;
+                        if (isNit) strength -= 0.1;
+                    }
+                    if (randomVal < 0.15) strength += 0.4;
+                    else if (randomVal > 0.90) strength -= 0.3;
+                    strength = Math.max(0, Math.min(1, strength));
+                    let bluffProb = 0.25;
+                    let valueBetMult = 1.0;
+                    if (isCallingStation) {
+                        bluffProb = 0.02;
+                        valueBetMult = 1.6;
+                    } else if (isNit) {
+                        bluffProb = 0.60;
+                        if (diff > 0) strength -= 0.25;
+                    } else if (isManiac) {
+                        bluffProb = 0.10;
+                    }
+                    if (diff === 0) {
+                        if (strength > 0.7) {
+                            action = 'raise';
+                            amount = Math.floor(pot * (0.5 + Math.random() * 0.7) * valueBetMult);
+                            if (amount < bb) amount = bb;
+                            if (isManiac && strength > 0.85 && randomVal < 0.5) action = 'check';
+                        } else if (strength > 0.35 && randomVal < bluffProb) {
+                            action = 'raise';
+                            amount = Math.floor(bb * (2 + Math.random() * 3));
+                        } else {
+                            action = 'check';
                         }
                     } else {
-                        const evalResult = HandEvaluator.evaluate(player.holeCards, state.communityCards);
-                        if (evalResult.score > 200000000) {
-                            if (diff === 0) {
+                        const potOdds = diff / (pot + diff);
+                        if (strength > 0.8) {
+                            if (randomVal < 0.75 && !isManiac) {
                                 action = 'raise';
-                                amount = (state.config?.bigBlind || 20) * 2;
+                                amount = Math.floor(diff * (2 + Math.random() * 1.5) * valueBetMult);
                             } else {
                                 action = 'call';
                             }
+                        } else if (strength > potOdds + (isManiac ? -0.15 : 0.05)) {
+                            action = 'call';
                         } else {
-                            if (diff === 0) action = 'check';
-                            else action = 'fold';
+                            if (randomVal < (bluffProb * 0.3) && diff < player.chips / 2) {
+                                action = 'raise';
+                                amount = Math.floor(pot * (0.8 + Math.random() * 0.6));
+                            } else {
+                                action = 'fold';
+                            }
                         }
                     }
-                    if (action === 'call' && diff >= player.chips) action = 'call';
-                    if (action === 'raise') amount = player.currentBet + amount;
-                    if (amount >= player.chips + player.currentBet && action === 'raise') {
-                        amount = player.chips + player.currentBet;
+                    amount = Math.floor(amount);
+                    if (action === 'raise') {
+                        let minRaise = diff + (state.lastRaiseAmount || bb);
+                        if (amount < minRaise) amount = minRaise;
+                        amount = player.currentBet + amount;
+                        if (amount >= player.chips + player.currentBet) {
+                            amount = player.chips + player.currentBet;
+                        }
                     }
+                    if (action === 'call' && diff >= player.chips) {
+                        action = 'call';
+                    }
+
                     hostCallback(aiUid, action, amount);
-                }, 1500 + Math.random() * 1500);
+                }, thinkTime);
+            }
+            static evaluateStrength(holeCards, communityCards, phase) {
+                if (!holeCards || holeCards.length !== 2) return 0;
+                const v1 = holeCards[0].value;
+                const v2 = holeCards[1].value;
+                const isSuited = holeCards[0].suit === holeCards[1].suit;
+                const gap = Math.abs(v1 - v2);
+                const maxV = Math.max(v1, v2);
+
+                if (phase === 'preflop') {
+                    let score = maxV * 2;
+                    if (v1 === v2) score *= 2.5;
+                    if (isSuited) score += 10;
+                    if (gap === 1) score += 8;
+                    else if (gap === 2) score += 5;
+                    return Math.min(1.0, score / 80);
+                } else {
+                    if (typeof HandEvaluator !== 'undefined') {
+                        const evalResult = HandEvaluator.evaluate(holeCards, communityCards);
+                        const rank = Math.floor(evalResult.score / Math.pow(100, 5));
+                        if (rank >= 7) return 1.0;
+                        if (rank === 6) return 0.85;
+                        if (rank === 5) return 0.80;
+                        if (rank === 4) return 0.70;
+                        if (rank === 3) return 0.60;
+                        if (rank === 2) return maxV >= 10 ? 0.45 : 0.25;
+                        return maxV >= 13 ? 0.15 : 0.05;
+                    }
+                    return 0.1;
+                }
             }
         }
         class NetworkManager {
