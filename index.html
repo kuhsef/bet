@@ -2249,14 +2249,19 @@
                             }
                         }
                     }
-                    amount = Math.floor(amount);
                     if (action === 'raise') {
-                        let minRaise = diff + (state.lastRaiseAmount || bb);
-                        if (amount < minRaise) amount = minRaise;
-                        amount = player.currentBet + amount;
-                        if (amount >= player.chips + player.currentBet) {
-                            amount = player.chips + player.currentBet;
+                        let minRaiseAbsolute = player.currentBet + diff + (state.lastRaiseAmount || bb);
+                        let targetAmount = player.currentBet + amount;
+                        let alignedMin = Math.ceil(minRaiseAbsolute / bb) * bb;
+                        targetAmount = Math.round(targetAmount / bb) * bb;
+                        targetAmount = Math.max(targetAmount, alignedMin);
+                        let maxPossible = player.chips + player.currentBet;
+                        if (targetAmount >= maxPossible) {
+                            targetAmount = maxPossible;
                         }
+                        amount = targetAmount;
+                    } else {
+                        amount = Math.floor(amount);
                     }
                     if (action === 'call' && diff >= player.chips) {
                         action = 'call';
