@@ -486,21 +486,6 @@
         #bottom-bar {
             padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
         }
-
-        #waiting-room-overlay {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100dvh !important;
-            z-index: 9999 !important;
-        }
-
-        #wait-host-controls {
-            max-height: 85vh !important;
-            overflow-y: auto !important;
-            padding-bottom: 20px !important;
-        }
     </style>
 </head>
 
@@ -600,7 +585,7 @@
             </div>
         </div>
         <div id="table-area"
-            class="flex-grow relative overflow-hidden flex items-center justify-center bg-gray-950 cursor-grab active:cursor-grabbing">
+            class="flex-grow relative overflow-hidden flex items-center justify-center bg-gray-950 cursor-grab active:cursor-grabbing pb-[320px]">
             <div id="table"
                 class="poker-table w-[95vw] h-[55vh] md:w-[800px] md:h-[450px] max-w-full relative transition-all duration-500">
                 <div id="community-area"
@@ -621,14 +606,14 @@
             </div>
         </div>
         <div id="bottom-bar"
-            class="bg-gray-900 p-4 shadow-[0_-5px_15px_rgba(0,0,0,0.5)] z-20 border-t border-gray-800 relative z-50">
+            class="absolute bottom-0 left-0 w-full bg-gray-900 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.8)] z-[9999] border-t border-gray-800">
             <div id="log-resizer"
-                class="h-3 w-full bg-gray-800 hover:bg-gray-600 cursor-ns-resize flex items-center justify-center rounded-t-md border border-gray-700 border-b-0 transition-colors"
-                style="margin-bottom: -1px;">
-                <div class="w-12 h-1 bg-gray-500 rounded-full"></div>
+                class="w-full h-6 -mt-4 mb-2 bg-gray-800 hover:bg-gray-600 cursor-ns-resize flex items-center justify-center rounded-b-md shadow-inner transition-colors">
+                <div class="w-12 h-1 bg-gray-400 rounded-full"></div>
             </div>
             <div id="game-log"
-                class="h-24 overflow-y-auto text-xs text-gray-500 mb-3 font-mono bg-gray-950 p-2 rounded-b-md border border-gray-800 scroll-smooth leading-5">
+                class="overflow-y-auto text-xs text-gray-500 mb-3 font-mono bg-gray-950 p-2 rounded border border-gray-800 scroll-smooth leading-5"
+                style="height: 80px; min-height: 0; transition: height 0.1s ease-out;">
                 <div data-i18n="log_welcome">System: Welcome to Texas Hold'em.</div>
             </div>
             <div id="chat-bar" class="flex gap-2 mb-3">
@@ -637,9 +622,7 @@
                     class="flex-1 px-3 py-2 rounded bg-gray-800 border border-gray-700 text-white"
                     onkeydown="if(event.key==='Enter'){network.sendChat();}">
                 <button id="chat-send-btn" data-i18n="chatSendBtn" onclick="network.sendChat()"
-                    class="px-4 py-2 bg-yellow-600 rounded font-bold">
-                    Send
-                </button>
+                    class="px-4 py-2 bg-yellow-600 rounded font-bold">Send</button>
             </div>
             <div id="player-controls"
                 class="flex flex-col items-center opacity-50 pointer-events-none transition-all duration-300 transform translate-y-2">
@@ -647,35 +630,23 @@
                     <span class="text-xs text-gray-500 font-bold tracking-wider w-8 text-center"
                         data-i18n="raiseLabel">Bet</span>
                     <button onclick="gameUI.adjustRaise(-1)"
-                        class="adjust-btn w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full text-yellow-500 font-bold flex items-center justify-center shadow border border-gray-700">
-                        -
-                    </button>
+                        class="adjust-btn w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full text-yellow-500 font-bold flex items-center justify-center shadow border border-gray-700">-</button>
                     <input type="range" id="raise-slider" step="1"
                         class="flex-grow h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer mx-2" />
                     <button onclick="gameUI.adjustRaise(1)"
-                        class="adjust-btn w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full text-yellow-500 font-bold flex items-center justify-center shadow border border-gray-700">
-                        +
-                    </button>
+                        class="adjust-btn w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full text-yellow-500 font-bold flex items-center justify-center shadow border border-gray-700">+</button>
                     <span id="raise-val-display"
                         class="text-sm text-yellow-400 w-14 text-right font-mono font-bold">$0</span>
                 </div>
                 <div class="flex justify-center space-x-3 w-full max-w-lg">
                     <button onclick="network.handleHumanAction('fold')" data-i18n="foldBtn"
-                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-gray-900 active:border-b-0 active:translate-y-1">
-                        Fold
-                    </button>
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-gray-900 active:border-b-0 active:translate-y-1">Fold</button>
                     <button onclick="network.handleHumanAction('check')" id="btn-check" data-i18n="checkBtn"
-                        class="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-blue-900 active:border-b-0 active:translate-y-1">
-                        Check
-                    </button>
+                        class="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-blue-900 active:border-b-0 active:translate-y-1">Check</button>
                     <button onclick="network.handleHumanAction('call')" id="btn-call" data-i18n="callBtn"
-                        class="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-blue-900 active:border-b-0 active:translate-y-1 hidden">
-                        Call
-                    </button>
+                        class="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-blue-900 active:border-b-0 active:translate-y-1 hidden">Call</button>
                     <button onclick="network.handleHumanAction('raise')" id="btn-raise" data-i18n="raiseBtn"
-                        class="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-yellow-800 active:border-b-0 active:translate-y-1">
-                        Raise
-                    </button>
+                        class="flex-1 bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 rounded-md shadow-md text-sm border-b-4 border-yellow-800 active:border-b-0 active:translate-y-1">Raise</button>
                 </div>
             </div>
             <div class="text-center mt-2 text-gray-700 text-[10px] font-mono tracking-wider">
@@ -816,9 +787,10 @@
                 log_call: "{name} Called ${amount}",
                 log_raise: "{name} Raised ${amount}",
                 log_all_in: "{name} All-in ${amount}",
-                log_phase_flop: "--- Flop ---",
-                log_phase_turn: "--- Turn ---",
-                log_phase_river: "--- River ---",
+                log_phase_flop: "Flop: {cards}",
+                log_phase_turn: "Turn: {cards}",
+                log_phase_river: "River: {cards}",
+                log_player_hand: "{name}: [{hole}] {best} ({handName})",
                 log_refund: "Refunding ${amount} to {name}",
                 log_win_sole: "--- {name} Wins ${amount} ---",
                 log_round_end_no_winner: "--- Round End (No Winner?) ---",
@@ -924,9 +896,10 @@
                 log_call: "{name} コール ${amount}",
                 log_raise: "{name} レイズ ${amount}",
                 log_all_in: "{name} オールイン ${amount}",
-                log_phase_flop: "--- フロップ ---",
-                log_phase_turn: "--- ターン ---",
-                log_phase_river: "--- リバー ---",
+                log_phase_flop: "フロップ: {cards}",
+                log_phase_turn: "ターン: {cards}",
+                log_phase_river: "リバー: {cards}",
+                log_player_hand: "{name}: [{hole}] {best} ({handName})",
                 log_refund: "{name}に ${amount} を返却",
                 log_win_sole: "--- {name} が ${amount} を獲得 ---",
                 log_round_end_no_winner: "--- 勝者なし？終了 ---",
@@ -1032,9 +1005,10 @@
                 log_call: "{name} 跟注 ${amount}",
                 log_raise: "{name} 加注 ${amount}",
                 log_all_in: "{name} 全押 ${amount}",
-                log_phase_flop: "--- 翻牌 ---",
-                log_phase_turn: "--- 转牌 ---",
-                log_phase_river: "--- 河牌 ---",
+                log_phase_flop: "翻牌：{cards}",
+                log_phase_turn: "转牌：{cards}",
+                log_phase_river: "河牌：{cards}",
+                log_player_hand: "{name}：[{hole}] {best}（{handName}）",
                 log_refund: "退还 ${amount} 给 {name}",
                 log_win_sole: "--- {name} 获胜, 赢得 ${amount} ---",
                 log_round_end_no_winner: "--- 无人获胜？回合结束 ---",
@@ -1069,6 +1043,7 @@
         const createLog = (key, args = {}) => {
             return JSON.stringify({ key, args });
         };
+        const formatCards = (cards) => cards ? cards.map(c => c.suit + c.rank).join(' ') : '';
         window.updateLanguage = (lang) => {
             currentLang = lang;
             document.documentElement.lang = lang;
@@ -1187,7 +1162,7 @@
             }
             if (logJson) {
                 newState.logs.push(logJson);
-                if (newState.logs.length > 20) newState.logs.shift();
+                if (newState.logs.length > 100) newState.logs.shift();
             }
             if (!newState.playersActed.includes(actingUserId)) {
                 newState.playersActed.push(actingUserId);
@@ -1252,15 +1227,15 @@
             if (newState.phase === "preflop") {
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
-                newState.logs.push(createLog("log_phase_flop"));
+                newState.logs.push(createLog("log_phase_flop", { cards: formatCards(newState.communityCards) }));
             } else if (newState.phase === "flop") {
                 newState.phase = "turn";
                 newState.communityCards.push(newState.deck.pop());
-                newState.logs.push(createLog("log_phase_turn"));
+                newState.logs.push(createLog("log_phase_turn", { cards: formatCards(newState.communityCards) }));
             } else if (newState.phase === "turn") {
                 newState.phase = "river";
                 newState.communityCards.push(newState.deck.pop());
-                newState.logs.push(createLog("log_phase_river"));
+                newState.logs.push(createLog("log_phase_river", { cards: formatCards(newState.communityCards) }));
             } else if (newState.phase === "river") {
                 newState = advanceToShowdown(newState);
                 return newState;
@@ -1289,17 +1264,17 @@
             if (newState.phase === "preflop") {
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
-                newState.logs.push(createLog("log_phase_flop"));
+                newState.logs.push(createLog("log_phase_flop", { cards: formatCards(newState.communityCards) }));
                 newState.nextPhaseTimer = 1500;
             } else if (newState.phase === "flop") {
                 newState.phase = "turn";
                 newState.communityCards.push(newState.deck.pop());
-                newState.logs.push(createLog("log_phase_turn"));
+                newState.logs.push(createLog("log_phase_turn", { cards: formatCards(newState.communityCards) }));
                 newState.nextPhaseTimer = 1500;
             } else if (newState.phase === "turn") {
                 newState.phase = "river";
                 newState.communityCards.push(newState.deck.pop());
-                newState.logs.push(createLog("log_phase_river"));
+                newState.logs.push(createLog("log_phase_river", { cards: formatCards(newState.communityCards) }));
                 newState.nextPhaseTimer = 1500;
             } else if (newState.phase === "river") {
                 newState.nextPhaseTimer = 0;
@@ -1351,6 +1326,15 @@
                 } else {
                     activePlayers.forEach(p => {
                         p.bestHand = HandEvaluator.evaluate(p.holeCards, newState.communityCards);
+                    });
+                    activePlayers.forEach(p => {
+                        const sortedBest = [...p.bestHand.bestCards].sort((a, b) => b.value - a.value);
+                        newState.logs.push(createLog("log_player_hand", {
+                            name: p.name,
+                            hole: formatCards(p.holeCards),
+                            best: formatCards(sortedBest),
+                            handName: p.bestHand.name
+                        }));
                     });
                     let distinctBets = [...new Set(activePlayers.map(p => p.accumulatedBet))].filter(bet => bet > 0).sort((a, b) => a - b);
                     let winnerLogs = [];
@@ -1818,10 +1802,15 @@
                         const logObj = JSON.parse(logStr);
                         if (logObj.isChat) {
                             const pName = state.players[logObj.uid]?.name || "Player";
-                            const pColor = window.getPlayerColor(logObj.uid);
+                            const pColor = window.getPlayerColor ? window.getPlayerColor(logObj.uid) : "#aaa";
                             return `<div style="color: ${pColor}">[Chat] ${pName}: ${logObj.text}</div>`;
                         }
+
                         if (logObj.key) {
+                            if (logObj.key === "log_player_hand") {
+                                logObj.args.handName = t(logObj.args.handName);
+                            }
+
                             displayMsg = t(logObj.key, logObj.args);
                             if (logObj.key === "log_showdown_result") {
                                 const potNameRaw = logObj.args.potName;
@@ -1903,7 +1892,7 @@
                         seatDiv.className = "player-seat";
                         seatDiv.innerHTML = `
                             <div id="chat-${p.uid}" class="chat-bubble hidden"></div>
-                            <div id="hand-label-${p.uid}" class="hand-label-effect absolute z-30" style="top:-78px;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;"></div>
+                            <div id="hand-label-${p.uid}" class="hand-label-effect absolute z-30" style="top:-95px;left:50%;transform:translateX(-50%);white-space:nowrap;pointer-events:none;"></div>
                             <div id="cards-${p.uid}" class="absolute flex space-x-1 z-10 transition-all" style="top:-50px;"></div>
                             <div class="player-info-box relative z-20">
                             <div id="dealer-${p.uid}" class="dealer-btn hidden">D</div>
@@ -2366,7 +2355,7 @@
                     };
                     state.chatMessages.push(msg);
                     state.logs.push(JSON.stringify({ isChat: true, uid: msg.uid, text: msg.text }));
-                    if (state.chatMessages.length > 30) {
+                    if (state.chatMessages.length > 100) {
                         state.chatMessages.shift();
                     }
                     this.broadcastState(state);
@@ -2422,7 +2411,7 @@
                     };
                     state.chatMessages.push(msg);
                     state.logs.push(JSON.stringify({ isChat: true, uid: msg.uid, text: msg.text }));
-                    if (state.chatMessages.length > 30) state.chatMessages.shift();
+                    if (state.chatMessages.length > 100) state.chatMessages.shift();
                     this.broadcastState(state);
                     setTimeout(() => {
                         const cur = this.gameUI.lastState;
@@ -2890,7 +2879,7 @@
                         ts: Date.now()
                     };
                     state.chatMessages.push(msg);
-                    if (state.chatMessages.length > 30) state.chatMessages.shift();
+                    if (state.chatMessages.length > 100) state.chatMessages.shift();
                     this.broadcastState(state);
                     setTimeout(() => {
                         const cur = this.gameUI.lastState;
@@ -3748,7 +3737,7 @@
             });
         }
         (function initLogResizer() {
-            const logResizer = document.getElementById("log-resizer");
+            const resizer = document.getElementById("log-resizer");
             const gameLog = document.getElementById("game-log");
             let isResizingLog = false;
             let startY = 0;
@@ -3758,27 +3747,84 @@
                 startY = y;
                 startHeight = gameLog.getBoundingClientRect().height;
                 document.body.style.cursor = "ns-resize";
+                gameLog.style.transition = "none";
             };
             const onDrag = (y) => {
                 if (!isResizingLog) return;
-                const newHeight = startHeight + (startY - y);
-                gameLog.style.height = Math.max(60, Math.min(newHeight, window.innerHeight * 0.5)) + "px";
+                const safeY = Math.max(10, y);
+                const newHeight = startHeight + (startY - safeY);
+                const bottomBar = document.getElementById("bottom-bar");
+                const fixedUIHeight = bottomBar.offsetHeight - gameLog.offsetHeight;
+                const maxHeight = window.innerHeight - fixedUIHeight - 10;
+                gameLog.style.height = Math.max(0, Math.min(newHeight, maxHeight)) + "px";
+                if (newHeight <= 10) {
+                    gameLog.style.padding = "0";
+                    gameLog.style.borderWidth = "0";
+                } else {
+                    gameLog.style.padding = "";
+                    gameLog.style.borderWidth = "";
+                }
             };
             const stopDrag = () => {
                 if (isResizingLog) {
                     isResizingLog = false;
                     document.body.style.cursor = "";
+                    gameLog.style.transition = "height 0.1s ease-out";
                 }
             };
-            if (logResizer) {
-                logResizer.addEventListener("mousedown", (e) => startDrag(e.clientY));
+            if (resizer) {
+                resizer.addEventListener("mousedown", (e) => startDrag(e.clientY));
+                resizer.addEventListener("touchstart", (e) => startDrag(e.touches[0].clientY), { passive: true });
             }
             window.addEventListener("mousemove", (e) => onDrag(e.clientY));
-            window.addEventListener("mouseup", stopDrag);
-            if (logResizer) {
-                logResizer.addEventListener("touchstart", (e) => startDrag(e.touches[0].clientY), { passive: true });
-            }
             window.addEventListener("touchmove", (e) => onDrag(e.touches[0].clientY), { passive: true });
+            window.addEventListener("mouseup", stopDrag);
+            window.addEventListener("touchend", stopDrag);
+        })();
+        (function initStartPanelDrag() {
+            const panel = document.getElementById("wait-host-controls");
+            const bottomBar = document.getElementById("bottom-bar");
+            if (!panel) return;
+            panel.style.transition = "none";
+            panel.style.willChange = "transform";
+            let isDragging = false;
+            let startY = 0;
+            let currentY = 0;
+            setTimeout(() => {
+                const bottomHeight = bottomBar ? bottomBar.offsetHeight : 0;
+                currentY = -(bottomHeight / 2);
+                panel.style.transform = `translate3d(0px, ${currentY}px, 0px)`;
+            }, 300);
+            const startDrag = (e) => {
+                const target = e.target;
+                if (target.tagName === "INPUT" || target.tagName === "BUTTON" || target.closest("input") || target.closest("button")) {
+                    return;
+                }
+                isDragging = true;
+                startY = e.clientY || e.touches[0].clientY;
+                document.body.style.cursor = "grabbing";
+                if (e.touches) e.preventDefault();
+            };
+            const onDrag = (e) => {
+                if (!isDragging) return;
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                if (clientY === undefined) return;
+                const deltaY = clientY - startY;
+                startY = clientY;
+                currentY += deltaY;
+                panel.style.transform = `translate3d(0px, ${currentY}px, 0px)`;
+            };
+            const stopDrag = () => {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.cursor = "";
+                }
+            };
+            panel.addEventListener("mousedown", startDrag);
+            panel.addEventListener("touchstart", startDrag, { passive: false });
+            window.addEventListener("mousemove", onDrag);
+            window.addEventListener("touchmove", onDrag, { passive: false });
+            window.addEventListener("mouseup", stopDrag);
             window.addEventListener("touchend", stopDrag);
         })();
         window.addEventListener('DOMContentLoaded', startApp);
