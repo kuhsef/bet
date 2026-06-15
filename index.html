@@ -1862,7 +1862,11 @@
                         this.customDeckTarget = null;
                     }
                 } else if (dealType && dealType !== "showdown_flip") {
-                    this.deckInDealingZone = true;
+                    if (foldGhostCards.length > 0) {
+                        this.deckInDealingZone = false;
+                    } else {
+                        this.deckInDealingZone = true;
+                    }
                     this.customDeckTarget = null;
                 }
                 this.highlightCards = new Set(state.highlightCards || []);
@@ -2268,6 +2272,14 @@
                     }, delayOffset);
                 } else if (dealType && dealType !== "showdown_flip") {
                     const container = document.getElementById("seats-container");
+                    let dealDelay = 600;
+                    if (foldGhostCards.length > 0) {
+                        dealDelay = 1300;
+                        setTimeout(() => {
+                            this.deckInDealingZone = true;
+                            this.renderTableLayout(displayState, this.localPlayerId);
+                        }, 700);
+                    }
                     setTimeout(() => {
                         const deckPile = document.getElementById("deck-pile");
                         if (!deckPile) {
@@ -2364,7 +2376,7 @@
                             renderLogsHTML(this.lastState.logs);
                             this.updateControls(this.lastState);
                         }, initialTargets.length * 150 + 1200);
-                    }, 600);
+                    }, dealDelay);
                 }
                 if (foldGhostCards.length > 0) {
                     const container = document.getElementById("seats-container");
