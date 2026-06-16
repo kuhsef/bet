@@ -3543,6 +3543,7 @@
                         ts: Date.now()
                     };
                     state.chatMessages.push(msg);
+                    state.logs.push(JSON.stringify({ isChat: true, uid: msg.uid, text: msg.text }));
                     if (state.chatMessages.length > 100) state.chatMessages.shift();
                     this.broadcastState(state);
                     setTimeout(() => {
