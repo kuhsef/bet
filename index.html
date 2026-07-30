@@ -2814,6 +2814,52 @@
             }
         }
         class AIController {
+            static estimateDrawOuts(holeCards, communityCards) {
+                if (!communityCards || communityCards.length < 3 || communityCards.length >= 5) return 0;
+                const all = [...holeCards, ...communityCards];
+                let outs = 0;
+                const suitCounts = {};
+                all.forEach(c => { suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1; });
+                if (Object.values(suitCounts).some(n => n === 4)) outs += 9;
+                let vals = [...new Set(all.map(c => c.value))];
+                if (vals.includes(14)) vals.push(1);
+                let openEnded = false, gutshot = false;
+                for (let low = 1; low <= 10; low++) {
+                    const need = [low, low + 1, low + 2, low + 3, low + 4];
+                    const missing = need.filter(v => !vals.includes(v));
+                    if (missing.length === 1) {
+                        if (missing[0] === low || missing[0] === low + 4) openEnded = true;
+                        else gutshot = true;
+                    }
+                }
+                if (openEnded) outs += 8;
+                else if (gutshot) outs += 4;
+                return Math.min(outs, 15);
+            }
+            static drawEquity(outs, communityCards) {
+                if (outs <= 0) return 0;
+                const cardsToCome = communityCards.length === 3 ? 2 : (communityCards.length === 4 ? 1 : 0);
+                const factor = cardsToCome === 2 ? 4 : (cardsToCome === 1 ? 2 : 0);
+                return Math.min(0.85, (outs * factor) / 100);
+            }
+            static profileOpponents(state, aiUid) {
+                const profiles = {};
+                for (const uid of state.playerOrder) {
+                    if (uid === aiUid || state.players[uid].folded) continue;
+                    const p = state.players[uid];
+                    let type = 'unknown';
+                    if (p.handsPlayed >= 5) {
+                        const vpip = (p.vpipCount || 0) / p.handsPlayed;
+                        const pfr = (p.pfrCount || 0) / p.handsPlayed;
+                        if (vpip > 0.55 && pfr < 0.2) type = 'callingStation';
+                        else if (vpip < 0.25 && pfr < 0.15) type = 'nit';
+                        else if (vpip > 0.45 && pfr > 0.35) type = 'maniac';
+                        else type = 'balanced';
+                    }
+                    profiles[uid] = { type };
+                }
+                return profiles;
+            }
             static playTurn(state, aiUid, hostCallback) {
                 const player = state.players[aiUid];
                 const diff = state.currentMaxBet - player.currentBet;
@@ -2828,27 +2874,44 @@
                     let isCallingStation = false;
                     let isNit = false;
                     let isManiac = false;
-                    let strength = this.evaluateStrength(player.holeCards, state.communityCards, state.phase);
+                    const numPlayers = state.playerOrder.length;
+                    const seatIndex = state.playerOrder.indexOf(aiUid);
+                    const dealerIndex = state.dealerIndex || 0;
+                    const distanceFromButton = (seatIndex - dealerIndex + numPlayers) % numPlayers;
+                    let positionScore;
+                    if (numPlayers <= 2) {
+                        positionScore = 0.5;
+                    } else if (distanceFromButton === 0) {
+                        positionScore = 1;
+                    } else {
+                        positionScore = (distanceFromButton - 1) / (numPlayers - 2);
+                    }
+                    const positionBonus = (positionScore - 0.5) * 0.16;
+                    let strength = this.evaluateStrength(player.holeCards, state.communityCards, state.phase, positionBonus);
+                    const activeOpponents = state.playerOrder.filter(uid => uid !== aiUid && !state.players[uid].folded).length;
+                    const multiwayAdj = Math.max(0, activeOpponents - 1) * 0.035;
+                    const multiwayBluffDecay = Math.pow(0.7, Math.max(0, activeOpponents - 1));
                     let randomVal = Math.random();
-                    let mainOpponent = null;
+                    const opponentProfiles = this.profileOpponents(state, aiUid);
+                    let mainOpponentUid = null;
                     if (state.lastAggressorId && state.lastAggressorId !== aiUid && !state.players[state.lastAggressorId].folded) {
-                        mainOpponent = state.players[state.lastAggressorId];
+                        mainOpponentUid = state.lastAggressorId;
                     } else {
                         let maxBet = -1;
                         for (let uid of state.playerOrder) {
                             if (uid !== aiUid && !state.players[uid].folded && state.players[uid].currentBet > maxBet) {
                                 maxBet = state.players[uid].currentBet;
-                                mainOpponent = state.players[uid];
+                                mainOpponentUid = uid;
                             }
                         }
                     }
-                    if (mainOpponent && mainOpponent.handsPlayed >= 5) {
-                        const vpip = (mainOpponent.vpipCount || 0) / mainOpponent.handsPlayed;
-                        const pfr = (mainOpponent.pfrCount || 0) / mainOpponent.handsPlayed;
-                        if (vpip > 0.55 && pfr < 0.2) isCallingStation = true;
-                        else if (vpip < 0.25 && pfr < 0.15) isNit = true;
-                        else if (vpip > 0.45 && pfr > 0.35) isManiac = true;
-                    }
+                    const mainType = mainOpponentUid ? opponentProfiles[mainOpponentUid]?.type : null;
+                    if (mainType === 'callingStation') isCallingStation = true;
+                    else if (mainType === 'nit') isNit = true;
+                    else if (mainType === 'maniac') isManiac = true;
+                    const typesInHand = Object.values(opponentProfiles).map(p => p.type);
+                    const stationsOrNitsInHand = typesInHand.filter(t => t === 'callingStation' || t === 'nit').length;
+                    const bluffDampFromField = Math.pow(0.6, stationsOrNitsInHand);
                     if (randomVal < 0.15) strength += 0.4;
                     else if (randomVal > 0.90) strength -= 0.3;
                     strength = Math.max(0, Math.min(1, strength));
@@ -2857,17 +2920,32 @@
                         valueBetMult = 1.6;
                     } else if (isNit) {
                         bluffProb = 0.60;
-                        if (diff > 0) strength -= 0.25;
+                        if (diff > 0) strength = Math.max(0, strength - 0.25);
                     } else if (isManiac) {
                         bluffProb = 0.10;
                     }
-                    if (diff === 0) {
-                        if (strength > 0.7) {
+                    bluffProb *= multiwayBluffDecay;
+                    const stackInBB = player.chips / bb;
+                    const isShortStacked = stackInBB <= 12 && state.phase === 'preflop';
+                    if (isShortStacked) {
+                        const shoveThreshold = 0.45 + multiwayAdj;
+                        if (strength > shoveThreshold) {
                             action = 'raise';
-                            amount = Math.floor(pot * (0.5 + Math.random() * 0.7) * valueBetMult);
+                            amount = player.chips;
+                        } else {
+                            action = diff === 0 ? 'check' : 'fold';
+                        }
+                    } else if (diff === 0) {
+                        if (strength > 0.7 + multiwayAdj) {
+                            action = 'raise';
+                            if (state.phase === 'preflop') {
+                                amount = Math.floor(bb * (2.5 + Math.random() * 1.5));
+                            } else {
+                                amount = Math.floor(pot * (0.5 + Math.random() * 0.7) * valueBetMult);
+                            }
                             if (amount < bb) amount = bb;
-                            if (isManiac && strength > 0.85 && randomVal < 0.5) action = 'check';
-                        } else if (strength > 0.35 && randomVal < bluffProb) {
+                            if (isManiac && strength > 0.85 && Math.random() < 0.5) action = 'check';
+                        } else if (strength > 0.35 + multiwayAdj && Math.random() < bluffProb) {
                             action = 'raise';
                             amount = Math.floor(bb * (2 + Math.random() * 3));
                         } else {
@@ -2875,19 +2953,23 @@
                         }
                     } else {
                         const potOdds = diff / (pot + diff);
-                        if (strength > 0.8) {
-                            if (randomVal < 0.75 && !isManiac) {
+                        if (strength > 0.8 + multiwayAdj) {
+                            if (Math.random() < 0.75 && !isManiac) {
                                 action = 'raise';
                                 amount = Math.floor(diff * (2 + Math.random() * 1.5) * valueBetMult);
                             } else {
                                 action = 'call';
                             }
-                        } else if (strength > potOdds + (isManiac ? -0.15 : 0.05)) {
+                        } else if (strength > potOdds + (isManiac ? -0.15 : 0.05) + multiwayAdj) {
                             action = 'call';
                         } else {
-                            if (randomVal < (bluffProb * 0.3) && diff < player.chips / 2) {
+                            if (Math.random() < (bluffProb * 0.3) && diff < player.chips / 2) {
                                 action = 'raise';
-                                amount = Math.floor(pot * (0.8 + Math.random() * 0.6));
+                                if (state.phase === 'preflop') {
+                                    amount = Math.floor(diff + Math.max(diff, state.lastRaiseAmount || bb) * (2.5 + Math.random() * 1.5));
+                                } else {
+                                    amount = Math.floor(pot * (0.8 + Math.random() * 0.6));
+                                }
                             } else {
                                 action = 'fold';
                             }
@@ -2907,13 +2989,10 @@
                     } else {
                         amount = Math.floor(amount);
                     }
-                    if (action === 'call' && diff >= player.chips) {
-                        action = 'call';
-                    }
                     hostCallback(aiUid, action, amount);
                 }, thinkTime);
             }
-            static evaluateStrength(holeCards, communityCards, phase) {
+            static evaluateStrength(holeCards, communityCards, phase, positionBonus = 0) {
                 if (!holeCards || holeCards.length !== 2) return 0;
                 const v1 = holeCards[0].value;
                 const v2 = holeCards[1].value;
@@ -2926,12 +3005,13 @@
                     if (isSuited) score += 10;
                     if (gap === 1) score += 8;
                     else if (gap === 2) score += 5;
-                    return Math.min(1.0, score / 80);
+                    if (v1 === v2 && maxV <= 6) score += 6;
+                    return Math.max(0, Math.min(1.0, score / 80 + positionBonus));
                 } else {
+                    let baseStrength = 0.1;
                     if (typeof HandEvaluator !== 'undefined') {
                         const evalResult = HandEvaluator.evaluate(holeCards, communityCards);
                         const rank = Math.floor(evalResult.score / Math.pow(100, 5));
-                        let baseStrength = 0;
                         if (rank >= 7) baseStrength = 1.0;
                         else if (rank === 6) baseStrength = 0.85;
                         else if (rank === 5) baseStrength = 0.80;
@@ -2954,9 +3034,11 @@
                                 }
                             }
                         }
-                        return Math.max(0.05, baseStrength);
+                        baseStrength = Math.max(0.05, baseStrength);
                     }
-                    return 0.1;
+                    const outs = this.estimateDrawOuts(holeCards, communityCards);
+                    const equity = this.drawEquity(outs, communityCards);
+                    return Math.max(baseStrength, equity);
                 }
             }
         }
