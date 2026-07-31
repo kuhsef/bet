@@ -1293,7 +1293,7 @@
                 const p = newState.players[uid];
                 p.accumulatedBet += p.currentBet;
                 p.currentBet = 0;
-                p.status = p.chips === 0 && !p.folded ? "status_all_in" : p.status;
+                p.status = p.chips === 0 && !p.folded ? "status_all_in" : "";
             });
             newState.currentPlayerIndex = -1;
             if (newState.phase === "preflop") {
