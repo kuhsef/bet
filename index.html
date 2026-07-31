@@ -2848,7 +2848,7 @@
                     if (uid === aiUid || state.players[uid].folded) continue;
                     const p = state.players[uid];
                     let type = 'unknown';
-                    if (p.handsPlayed >= 5) {
+                    if (p.handsPlayed >= 10) {
                         const vpip = (p.vpipCount || 0) / p.handsPlayed;
                         const pfr = (p.pfrCount || 0) / p.handsPlayed;
                         if (vpip > 0.55 && pfr < 0.2) type = 'callingStation';
@@ -2920,7 +2920,7 @@
                         valueBetMult = 1.6;
                     } else if (isNit) {
                         bluffProb = 0.60;
-                        if (diff > 0) strength = Math.max(0, strength - 0.25);
+                        if (diff > 0) strength = Math.max(0, strength - 0.12);
                     } else if (isManiac) {
                         bluffProb = 0.10;
                     }
@@ -3017,7 +3017,7 @@
                         else if (rank === 5) baseStrength = 0.80;
                         else if (rank === 4) baseStrength = 0.70;
                         else if (rank === 3) baseStrength = 0.60;
-                        else if (rank === 2) baseStrength = maxV >= 10 ? 0.45 : 0.25;
+                        else if (rank === 2) baseStrength = maxV >= 10 ? 0.58 : 0.35;
                         else baseStrength = maxV >= 13 ? 0.15 : 0.05;
                         if (communityCards.length >= 3 && evalResult.bestCards) {
                             const usedHoleCards = evalResult.bestCards.filter(c => c.isHole);
