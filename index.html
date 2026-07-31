@@ -1300,17 +1300,17 @@
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
                 newState.logs.push(createLog("log_phase_flop", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2500;
             } else if (newState.phase === "flop") {
                 newState.phase = "turn";
                 newState.communityCards.push(newState.deck.pop());
                 newState.logs.push(createLog("log_phase_turn", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2100;
             } else if (newState.phase === "turn") {
                 newState.phase = "river";
                 newState.communityCards.push(newState.deck.pop());
                 newState.logs.push(createLog("log_phase_river", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2100;
             } else if (newState.phase === "river") {
                 newState.nextPhaseTimer = 0;
                 newState = advanceToShowdown(newState);
@@ -2797,8 +2797,8 @@
                         setTimeout(() => {
                             overlay.remove();
                             resolve();
-                        }, 300);
-                    }, 1250);
+                        }, 200);
+                    }, 700);
                 });
             }
             createCardEl(c) {
