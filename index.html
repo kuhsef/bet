@@ -1293,24 +1293,24 @@
                 const p = newState.players[uid];
                 p.accumulatedBet += p.currentBet;
                 p.currentBet = 0;
-                p.status = p.chips === 0 && !p.folded ? "status_all_in" : p.status;
+                p.status = p.chips === 0 && !p.folded ? "status_all_in" : "";
             });
             newState.currentPlayerIndex = -1;
             if (newState.phase === "preflop") {
                 newState.phase = "flop";
                 newState.communityCards.push(newState.deck.pop(), newState.deck.pop(), newState.deck.pop());
                 newState.logs.push(createLog("log_phase_flop", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2500;
             } else if (newState.phase === "flop") {
                 newState.phase = "turn";
                 newState.communityCards.push(newState.deck.pop());
                 newState.logs.push(createLog("log_phase_turn", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2100;
             } else if (newState.phase === "turn") {
                 newState.phase = "river";
                 newState.communityCards.push(newState.deck.pop());
                 newState.logs.push(createLog("log_phase_river", { cards: formatCards(newState.communityCards) }));
-                newState.nextPhaseTimer = 1500;
+                newState.nextPhaseTimer = 2100;
             } else if (newState.phase === "river") {
                 newState.nextPhaseTimer = 0;
                 newState = advanceToShowdown(newState);
@@ -1765,6 +1765,11 @@
             }
             renderGameState(state, localId) {
                 if (!state) return;
+                if (this.isAnimatingDeal) {
+                    clearTimeout(this._pendingRenderRetry);
+                    this._pendingRenderRetry = setTimeout(() => this.renderGameState(state, localId), 100);
+                    return;
+                }
                 const oldState = this.lastState;
                 this.initSound();
                 let foldGhostCards = [];
@@ -1939,6 +1944,7 @@
                     displayState = JSON.parse(JSON.stringify(state));
                     if (this.animatingDealType === "log_new_round" && cardsToCollect.length > 0) {
                         displayState.dealerIndex = this.frozenTableState.dealerIndex;
+                        displayState.playerOrder = this.frozenTableState.playerOrder;
                     }
                     displayState.pot = this.frozenTableState.pot;
                     if (this.animatingDealType === "log_new_round") {
@@ -2796,8 +2802,8 @@
                         setTimeout(() => {
                             overlay.remove();
                             resolve();
-                        }, 300);
-                    }, 1250);
+                        }, 200);
+                    }, 700);
                 });
             }
             createCardEl(c) {
@@ -2848,7 +2854,7 @@
                     if (uid === aiUid || state.players[uid].folded) continue;
                     const p = state.players[uid];
                     let type = 'unknown';
-                    if (p.handsPlayed >= 5) {
+                    if (p.handsPlayed >= 10) {
                         const vpip = (p.vpipCount || 0) / p.handsPlayed;
                         const pfr = (p.pfrCount || 0) / p.handsPlayed;
                         if (vpip > 0.55 && pfr < 0.2) type = 'callingStation';
@@ -2920,7 +2926,7 @@
                         valueBetMult = 1.6;
                     } else if (isNit) {
                         bluffProb = 0.60;
-                        if (diff > 0) strength = Math.max(0, strength - 0.25);
+                        if (diff > 0) strength = Math.max(0, strength - 0.12);
                     } else if (isManiac) {
                         bluffProb = 0.10;
                     }
@@ -3017,7 +3023,7 @@
                         else if (rank === 5) baseStrength = 0.80;
                         else if (rank === 4) baseStrength = 0.70;
                         else if (rank === 3) baseStrength = 0.60;
-                        else if (rank === 2) baseStrength = maxV >= 10 ? 0.45 : 0.25;
+                        else if (rank === 2) baseStrength = maxV >= 10 ? 0.58 : 0.35;
                         else baseStrength = maxV >= 13 ? 0.15 : 0.05;
                         if (communityCards.length >= 3 && evalResult.bestCards) {
                             const usedHoleCards = evalResult.bestCards.filter(c => c.isHole);
