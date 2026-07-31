@@ -1765,6 +1765,11 @@
             }
             renderGameState(state, localId) {
                 if (!state) return;
+                if (this.isAnimatingDeal) {
+                    clearTimeout(this._pendingRenderRetry);
+                    this._pendingRenderRetry = setTimeout(() => this.renderGameState(state, localId), 100);
+                    return;
+                }
                 const oldState = this.lastState;
                 this.initSound();
                 let foldGhostCards = [];
