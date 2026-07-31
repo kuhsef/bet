@@ -1939,6 +1939,7 @@
                     displayState = JSON.parse(JSON.stringify(state));
                     if (this.animatingDealType === "log_new_round" && cardsToCollect.length > 0) {
                         displayState.dealerIndex = this.frozenTableState.dealerIndex;
+                        displayState.playerOrder = this.frozenTableState.playerOrder;
                     }
                     displayState.pot = this.frozenTableState.pot;
                     if (this.animatingDealType === "log_new_round") {
